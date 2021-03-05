@@ -1,18 +1,17 @@
 #include "notification.h"
 
-// Read all notification files (*.txt) from a specific path
+// Read all notification files (*.txt) in a specific directory
 void Notification::read_notification(const QString &path) {
     const QDir dir(path);
-    const QStringList list = dir.entryList(QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase);
+    const QStringList filters = {"*.txt"};
+    const QStringList list = dir.entryList(filters, QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase);
 
     // Read all files in this directory
     for (QList<QString>::const_iterator it = list.constBegin(); it != list.constEnd(); it++) {
         QFile file(path + *it);
 
-        if (!file.exists()) { // File doesn't exist
-            qWarning() << "[W] 通知文件不存在：" << path;
-        } else if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { // Cannot open file in readonly mode
-            qWarning() << "[E] 无法以只读方式打开通知文件：" << path;
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { // Cannot open file in readonly mode
+            qWarning() << "[E] Failed to open notification file in readonly mode:" << path;
         } else { // File opened successfully, save notification title (line 1) and content (line 2) into notification_list
             const QString title = file.readLine();
             const QString content = file.readLine();
@@ -36,20 +35,20 @@ QString Notification::get_notification(const qint32 &index, const qint32 &type) 
                 it += index;
                 return it.value();
             default: // Unknown notification type
-                qWarning() << "[E] 通知类型错误：序号 " << index << "，类型 " << type;
+                qWarning() << "[E] Wrong notification type: Index" << index << ", Type" << type;
             }
         } else { // Notification index is out of range
-            qWarning() << "[E] 通知序号越界：序号 " << index << "，类型 " << type;
+            qWarning() << "[E] Notification index out of range: Index" << index << ", Type" << type;
         }
     } else { // Notification list is empty
-        qWarning() << "[W] 通知文件为空！";
+        qWarning() << "[W] Empty notification list!";
     }
 
-    return "🔕 无通知";
+    return QStringLiteral("🔕 无通知");
 }
 
-// Get all notifications (title/content) merged in a QString
-QString Notification::get_merged_notification() {
+// Get all notifications (title/content) that merged into one string
+QString Notification::get_all_notification() {
     if (!notification_list.empty()) { // Notification list is not empty
         QString merged;
 
@@ -61,7 +60,7 @@ QString Notification::get_merged_notification() {
 
         return merged;
     } else { // Notification list is empty
-        qWarning() << "[W] 通知文件为空！";
-        return "🔕 无通知";
+        qWarning() << "[W] Empty notification list!";
+        return QStringLiteral("🔕 无通知");
     }
 }

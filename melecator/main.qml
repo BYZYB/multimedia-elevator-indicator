@@ -14,60 +14,73 @@ Window {
     Flow {
         id: panel_media
         x: 0
-        y: spacing
+        y: 0
         width: parent.width - panel_elevator.width
-        height: parent.height - panel_datetime_scrolling.height - 2 * spacing
-        leftPadding: 16
-        rightPadding: 16
+        height: parent.height - panel_datetime_scrolling.height
+        padding: 16
         spacing: 16
 
         Rectangle {
             id: background_player
             width: parent.width - parent.spacing * 2
-            height: parent.height - background_weather.height - parent.spacing
+            height: parent.height - background_weather.height - parent.spacing * 3
             color: "#80000000"
             radius: 8
 
             Text {
                 id: text_player
-                text: "🎞 正在加载"
+                text: "▶ 点击播放"
                 height: parent.height
                 width: parent.width
                 color: "#ffffff"
                 font.family: "Noto Sans CJK SC"
-                font.pixelSize: parent.height / 6
+                font.pixelSize: parent.height / 8
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }
 
             MediaPlayer {
                 id: player
-                autoPlay: true
                 playlist: Playlist {
                     id: list_player
                     playbackMode: Playlist.Random
-
-                    PlaylistItem {
-                        source: "D:/Temp/multimedia-elevator-indicator/test_data/video/Qt 6 The Ultimate UX Development Platform.mp4"
-                    }
-
-                    PlaylistItem {
-                        source: "D:/Temp/multimedia-elevator-indicator/test_data/video/Raspberry Pi 4 your new 35 computer.mp4"
-                    }
-                }
-                onError: {
-                    console.warn("[E] 无法播放媒体文件：" + errorString)
-                    text_player.text = "🚫 无媒体文件"
-                }
-                onPlaying: {
-                    text_player.destroy()
                 }
             }
 
             VideoOutput {
+                id: videooutput_player
+                source: player
                 anchors.fill: parent
                 fillMode: VideoOutput.PreserveAspectCrop
-                source: player
+
+                MouseArea {
+                    id: mousearea_player
+                    anchors.fill: parent
+                    onClicked: {
+                        var video_amount = media.get_video_amount()
+                        var video_path = new Array(video_amount)
+
+                        if (video_amount > 0) {
+                            for (var i = 0; i < video_amount; i++) {
+                                video_path[i] = media.get_video_path(i)
+                            }
+
+                            list_player.addItems(video_path)
+                            button_back.visible = true
+                            button_forward.visible = true
+                            player.play()
+                            text_player.destroy()
+                            mousearea_player.destroy()
+                        } else {
+                            text_player.text = "🚫 无媒体文件"
+                            button_back.destroy()
+                            button_forward.destroy()
+                            player.destroy()
+                            videooutput_player.destroy()
+                            mousearea_player.destroy()
+                        }
+                    }
+                }
             }
 
             Button {
@@ -75,6 +88,7 @@ Window {
                 width: height / 1.5
                 height: background_player.height / 5
                 text: "<"
+                visible: false
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: height / 2
@@ -89,6 +103,7 @@ Window {
                 width: height / 1.5
                 height: background_player.height / 5
                 text: ">"
+                visible: false
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: height / 2
@@ -119,7 +134,7 @@ Window {
     Grid {
         id: panel_elevator
         x: panel_media.width
-        y: panel_media.spacing
+        y: 0
         width: parent.width / 3
         height: panel_media.height
     }
@@ -129,7 +144,7 @@ Window {
         x: 0
         y: parent.height - height
         width: parent.width
-        height: parent.height / 9 - panel_media.spacing / 2
+        height: parent.height / 9 - panel_media.spacing
 
         Rectangle {
             id: background_datetime
@@ -170,7 +185,7 @@ Window {
 
             Text {
                 id: text_scrolling_notification
-                text: notification.get_merged_notification()
+                text: notification.get_all_notification()
                 height: parent.height
                 color: "#ffffff"
                 font.family: "Noto Sans CJK SC"
