@@ -48,11 +48,11 @@ Window {
                     playbackMode: Playlist.Random
 
                     PlaylistItem {
-                        source: "D:/Temp/multimedia-elevator-indicator/test_data/Qt 6 The Ultimate UX Development Platform.mp4"
+                        source: "D:/Temp/multimedia-elevator-indicator/test_data/video/Qt 6 The Ultimate UX Development Platform.mp4"
                     }
 
                     PlaylistItem {
-                        source: "D:/Temp/multimedia-elevator-indicator/test_data/Raspberry Pi 4 your new 35 computer.mp4"
+                        source: "D:/Temp/multimedia-elevator-indicator/test_data/video/Raspberry Pi 4 your new 35 computer.mp4"
                     }
                 }
                 onError: {
@@ -185,7 +185,7 @@ Window {
                     loops: Animation.Infinite
 
                     PropertyAnimation {
-                        duration: text_scrolling_notification.width * 4
+                        duration: 60000
                         from: background_scrolling_notification.width
                         to: -text_scrolling_notification.width
                     }

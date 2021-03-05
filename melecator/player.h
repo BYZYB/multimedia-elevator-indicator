@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QRegularExpression>
 
-#define VIDEO_PATH "/../../test_data/notifications.txt"
+#define VIDEO_PATH "/../../test_data/video"
 
 class Player : public QObject {
     Q_OBJECT
