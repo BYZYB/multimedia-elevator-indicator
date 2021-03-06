@@ -12,9 +12,14 @@ void Notification::read_notification(const QString &path) {
 
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { // Cannot open file in readonly mode
             qWarning() << "[E] Failed to open notification file in readonly mode:" << path;
-        } else { // File opened successfully, save notification title (line 1) and content (line 2) into notification_list
-            const QString title = file.readLine();
-            const QString content = file.readLine();
+        } else { // File opened successfully, save notification title (line 1) and content (line 2+) into notification_list
+            const QString title = file.readLine().simplified();
+            QString content;
+
+            while (!file.atEnd()) {
+                content.append(file.readLine());
+            }
+
             notification_list.insert(title, content);
             file.close();
         }
@@ -24,7 +29,7 @@ void Notification::read_notification(const QString &path) {
 // Get notification by index and type (title/content)
 QString Notification::get_notification(const qint32 &index, const qint32 &type) {
     if (!notification_list.empty()) {                          // Notification list is not empty
-        if (index >= 0 && index <= notification_list.size()) { // Check if the notification index is legal
+        if (index >= 0 && index <= notification_list.size()) { // Check if the notification index is acceptable
             QMap<QString, QString>::const_iterator it = notification_list.constBegin();
 
             switch (type) {
@@ -33,34 +38,35 @@ QString Notification::get_notification(const qint32 &index, const qint32 &type) 
                 return it.key();
             case 1: // Get notification content
                 it += index;
-                return it.value();
+                return it.value().trimmed();
             default: // Unknown notification type
                 qWarning() << "[E] Wrong notification type: Index" << index << ", Type" << type;
+                return "🔕 通知类型错误";
             }
         } else { // Notification index is out of range
             qWarning() << "[E] Notification index out of range: Index" << index << ", Type" << type;
+            return "🔕 通知不存在";
         }
     } else { // Notification list is empty
         qWarning() << "[W] Empty notification list!";
+        return "🔕 无通知";
     }
-
-    return QStringLiteral("🔕 无通知");
 }
 
 // Get all notifications (title/content) that merged into one string
 QString Notification::get_all_notification() {
     if (!notification_list.empty()) { // Notification list is not empty
-        QString merged;
+        QString notification;
 
         // Merge all notifications into a QString, including both title and content
         for (QMap<QString, QString>::const_iterator it = notification_list.constBegin(); it != notification_list.constEnd(); it++) {
-            merged.append("🔔 【" + it.key().trimmed() + "】");
-            merged.append(it.value().trimmed() + "\t");
+            notification.append("🔔 【" + it.key() + "】");
+            notification.append(it.value().simplified() + "\t");
         }
 
-        return merged;
+        return notification;
     } else { // Notification list is empty
         qWarning() << "[W] Empty notification list!";
-        return QStringLiteral("🔕 无通知");
+        return "🔕 无通知";
     }
 }
