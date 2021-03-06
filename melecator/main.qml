@@ -23,7 +23,7 @@ Window {
         Rectangle {
             id: background_player
             width: parent.width - parent.spacing * 2
-            height: parent.height - background_weather.height - parent.spacing * 3
+            height: parent.height - background_left.height - parent.spacing * 3
             color: "#80000000"
             radius: 8
 
@@ -93,6 +93,9 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: height / 2
                 opacity: 0.5
+                ToolTip.text: "上一个视频"
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered || pressed
                 onClicked: {
                     list_player.previous()
                 }
@@ -100,14 +103,17 @@ Window {
 
             Button {
                 id: button_forward
-                width: height / 1.5
-                height: background_player.height / 5
+                width: button_back.width
+                height: button_back.height
                 text: ">"
-                visible: false
+                visible: button_back.visible
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                font.pixelSize: height / 2
-                opacity: 0.5
+                font.pixelSize: button_back.font.pixelSize
+                opacity: button_back.opacity
+                ToolTip.text: "下一个视频"
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered || pressed
                 onClicked: {
                     list_player.next()
                 }
@@ -115,19 +121,55 @@ Window {
         }
 
         Rectangle {
-            id: background_weather
+            id: background_left
             width: parent.width / 2 - parent.spacing * 1.5
             height: parent.height / 4
-            color: "#80000000"
-            radius: 8
+            color: background_player.color
+            radius: background_player.radius
+
+            SwipeView {
+                id: swipeview_left
+                anchors.fill: parent
+
+                Item {}
+
+                Item {}
+
+                Item {}
+            }
+
+            PageIndicator {
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                count: swipeview_left.count
+                currentIndex: swipeview_left.currentIndex
+            }
         }
 
         Rectangle {
-            id: background_notification
-            width: background_weather.width
-            height: background_weather.height
-            color: "#80000000"
-            radius: 8
+            id: background_right
+            width: background_left.width
+            height: background_left.height
+            color: background_player.color
+            radius: background_player.radius
+
+            SwipeView {
+                id: swipeview_right
+                anchors.fill: parent
+
+                Item {}
+
+                Item {}
+
+                Item {}
+            }
+
+            PageIndicator {
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                count: swipeview_right.count
+                currentIndex: swipeview_right.currentIndex
+            }
         }
     }
 
