@@ -1,3 +1,4 @@
+import QtCharts 2.3
 import QtMultimedia 5.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -57,12 +58,12 @@ Window {
                     id: mousearea_player
                     anchors.fill: parent
                     onClicked: {
-                        var video_amount = media.get_video_amount()
+                        var video_amount = Media.get_video_amount()
                         var video_path = new Array(video_amount)
 
                         if (video_amount > 0) {
                             for (var i = 0; i < video_amount; i++) {
-                                video_path[i] = media.get_video_path(i)
+                                video_path[i] = Media.get_video_path(i)
                             }
 
                             list_player.addItems(video_path)
@@ -227,7 +228,7 @@ Window {
 
             Text {
                 id: text_scrolling_notification
-                text: notification.get_all_notification()
+                text: Notification.get_merged_notification()
                 height: parent.height
                 color: "#ffffff"
                 font.family: "Noto Sans CJK SC"

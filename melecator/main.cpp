@@ -8,12 +8,13 @@
 
 int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QQuickStyle::setStyle("Material");
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
-    QQuickStyle::setStyle("Material");
 
-    engine.rootContext()->setContextProperty("media", new Media(app.applicationDirPath()));
-    engine.rootContext()->setContextProperty("notification", new Notification(app.applicationDirPath()));
+    engine.rootContext()->setContextProperty("Media", new Media(app.applicationDirPath()));
+    engine.rootContext()->setContextProperty("Notification", new Notification(app.applicationDirPath()));
+    engine.rootContext()->setContextProperty("Weather", new Weather("广州市"));
     engine.load("qrc:/main.qml");
 
     return app.exec();
