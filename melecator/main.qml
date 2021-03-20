@@ -24,7 +24,7 @@ Window {
         Rectangle {
             id: background_player
             width: parent.width - parent.spacing * 2
-            height: parent.height - background_left.height - parent.spacing * 3
+            height: parent.height - background_weather.height - parent.spacing * 3
             color: "#80000000"
             radius: 8
 
@@ -40,43 +40,39 @@ Window {
                 verticalAlignment: Text.AlignVCenter
             }
 
-            MediaPlayer {
-                id: player
-                playlist: Playlist {
-                    id: list_player
-                    playbackMode: Playlist.Random
-                }
-            }
-
             VideoOutput {
                 id: videooutput_player
-                source: player
                 anchors.fill: parent
                 fillMode: VideoOutput.PreserveAspectCrop
+                source: MediaPlayer {
+                    id: media_player
+                    playlist: Playlist {
+                        id: list_player
+                        playbackMode: Playlist.Random
+                    }
+                }
 
                 MouseArea {
                     id: mousearea_player
                     anchors.fill: parent
                     onClicked: {
                         var video_amount = Media.get_video_amount()
-                        var video_path = new Array(video_amount)
+                        var video_path = Media.get_video_path()
 
                         if (video_amount > 0) {
                             for (var i = 0; i < video_amount; i++) {
-                                video_path[i] = Media.get_video_path(i)
+                                list_player.addItem(video_path[i])
                             }
 
-                            list_player.addItems(video_path)
-                            button_back.visible = true
-                            button_forward.visible = true
-                            player.play()
+                            button_previous.visible = button_next.visible = true
+                            media_player.play()
                             text_player.destroy()
                             mousearea_player.destroy()
                         } else {
                             text_player.text = "🚫 无媒体文件"
-                            button_back.destroy()
-                            button_forward.destroy()
-                            player.destroy()
+                            button_previous.destroy()
+                            button_next.destroy()
+                            media_player.destroy()
                             videooutput_player.destroy()
                             mousearea_player.destroy()
                         }
@@ -85,80 +81,97 @@ Window {
             }
 
             Button {
-                id: button_back
+                id: button_next
                 width: height / 1.5
                 height: background_player.height / 5
-                text: "<"
+                text: ">"
                 visible: false
-                anchors.left: parent.left
+                anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: height / 2
                 opacity: 0.5
-                ToolTip.text: "上一个视频"
-                ToolTip.timeout: 3000
-                ToolTip.visible: hovered || pressed
-                onClicked: {
-                    list_player.previous()
-                }
-            }
-
-            Button {
-                id: button_forward
-                width: button_back.width
-                height: button_back.height
-                text: ">"
-                visible: button_back.visible
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                font.pixelSize: button_back.font.pixelSize
-                opacity: button_back.opacity
-                ToolTip.text: "下一个视频"
+                ToolTip.text: "下一个"
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered || pressed
                 onClicked: {
                     list_player.next()
                 }
             }
+
+            Button {
+                id: button_previous
+                width: button_next.width
+                height: button_next.height
+                text: "<"
+                visible: button_next.visible
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                font.pixelSize: button_next.font.pixelSize
+                opacity: button_next.opacity
+                ToolTip.text: "上一个"
+                ToolTip.timeout: 3000
+                ToolTip.visible: hovered || pressed
+                onClicked: {
+                    list_player.previous()
+                }
+            }
         }
 
         Rectangle {
-            id: background_left
+            id: background_weather
             width: parent.width / 2 - parent.spacing * 1.5
             height: parent.height / 4
             color: background_player.color
             radius: background_player.radius
 
             SwipeView {
-                id: swipeview_left
+                id: swipeview_weather
                 anchors.fill: parent
+                clip: true
+
+                Item {
+                    BusyIndicator {
+                        id: indicator_weather
+                        anchors.centerIn: parent
+                    }
+                    Text {
+                        id: text_weather
+                        color: "#ffffff"
+                        font.family: "Noto Sans CJK SC"
+                    }
+                }
 
                 Item {}
 
-                Item {}
-
-                Item {}
+                Timer {
+                    interval: 1000
+                    running: true
+                    onTriggered: {
+                        var weather_forecast = Weather.get_weather_forecast()
+                        text_weather.text = weather_forecast[0]["dayweather"].toString()
+                        indicator_weather.destroy()
+                    }
+                }
             }
 
             PageIndicator {
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
-                count: swipeview_left.count
-                currentIndex: swipeview_left.currentIndex
+                count: swipeview_weather.count
+                currentIndex: swipeview_weather.currentIndex
             }
         }
 
         Rectangle {
-            id: background_right
-            width: background_left.width
-            height: background_left.height
+            id: background_calendar
+            width: background_weather.width
+            height: background_weather.height
             color: background_player.color
             radius: background_player.radius
 
             SwipeView {
                 id: swipeview_right
                 anchors.fill: parent
-
-                Item {}
 
                 Item {}
 

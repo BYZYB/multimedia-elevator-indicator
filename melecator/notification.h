@@ -6,7 +6,7 @@
 #include <QFile>
 #include <QObject>
 
-#define NOTIFICATION_PATH "/../../test_data/notification/"
+#define NOTIFICATION_PATH "/../../test_data/notifications/"
 
 class Notification : public QObject {
 public:

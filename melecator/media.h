@@ -6,17 +6,17 @@
 #include <QFile>
 #include <QObject>
 
-#define IMAGE_PATH "/../../test_data/image/"
-#define VIDEO_PATH "/../../test_data/video/"
+#define IMAGE_PATH "/../../test_data/images/"
+#define VIDEO_PATH "/../../test_data/videos/"
 
 class Media : public QObject {
 public:
     Media(const QString &path, QObject *parent = 0) : QObject(parent) { read_media_file(path); }
     ~Media() {}
     Q_INVOKABLE inline qint32 get_image_amount() { return images.size(); }
-    Q_INVOKABLE inline QString get_image_path(const qint32 &index) { return !images.isEmpty() ? images[index] : NULL; }
+    Q_INVOKABLE inline QStringList get_image_path() { return images; }
     Q_INVOKABLE inline qint32 get_video_amount() { return videos.size(); }
-    Q_INVOKABLE inline QString get_video_path(const qint32 &index) { return !videos.isEmpty() ? videos[index] : NULL; }
+    Q_INVOKABLE inline QStringList get_video_path() { return videos; }
 
 private:
     Q_OBJECT
