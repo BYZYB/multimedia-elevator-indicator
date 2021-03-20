@@ -34,7 +34,6 @@ Window {
                 height: parent.height
                 width: parent.width
                 color: "#ffffff"
-                font.family: "Noto Sans CJK SC"
                 font.pixelSize: parent.height / 8
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
@@ -84,11 +83,11 @@ Window {
                 id: button_next
                 width: height / 1.5
                 height: background_player.height / 5
-                text: ">"
                 visible: false
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: height / 2
+                icon.source: "qrc:/res/icons/player/next.png"
                 opacity: 0.5
                 ToolTip.text: "下一个"
                 ToolTip.timeout: 3000
@@ -102,11 +101,11 @@ Window {
                 id: button_previous
                 width: button_next.width
                 height: button_next.height
-                text: "<"
                 visible: button_next.visible
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: button_next.font.pixelSize
+                icon.source: "qrc:/res/icons/player/previous.png"
                 opacity: button_next.opacity
                 ToolTip.text: "上一个"
                 ToolTip.timeout: 3000
@@ -134,24 +133,34 @@ Window {
                         id: indicator_weather
                         anchors.centerIn: parent
                     }
-                    Text {
-                        id: text_weather
-                        color: "#ffffff"
-                        font.family: "Noto Sans CJK SC"
+
+                    Image {
+                        id: image_weather
+                        width: height
+                        height: parent.height - 32
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Timer {
+                        interval: 1000
+                        running: true
+                        onTriggered: {
+                            if (Weather.is_weather_available()) {
+                                var weather_current = Weather.get_weather_current()
+                                var weather_forecast = Weather.get_weather_forecast()
+                                image_weather.source = Weather.get_weather_image(
+                                            0)
+                            } else {
+                                image_weather.source = "qrc:/res/icons/weather/unknown.png"
+                            }
+
+                            indicator_weather.destroy()
+                        }
                     }
                 }
 
                 Item {}
-
-                Timer {
-                    interval: 1000
-                    running: true
-                    onTriggered: {
-                        var weather_forecast = Weather.get_weather_forecast()
-                        text_weather.text = weather_forecast[0]["dayweather"].toString()
-                        indicator_weather.destroy()
-                    }
-                }
             }
 
             PageIndicator {
@@ -187,7 +196,7 @@ Window {
         }
     }
 
-    Grid {
+    Flow {
         id: panel_elevator
         x: panel_media.width
         y: 0
@@ -213,7 +222,6 @@ Window {
                 height: parent.height
                 width: parent.width
                 color: "#ffffff"
-                font.family: "Noto Sans CJK SC"
                 font.pixelSize: parent.height / 3
                 font.weight: Font.Medium
                 horizontalAlignment: Text.AlignHCenter
@@ -226,7 +234,7 @@ Window {
                     triggeredOnStart: true
                     onTriggered: {
                         parent.text = Qt.formatDateTime(new Date(),
-                                                        "AP hh:mm\nyyyy-MM-dd")
+                                                        "AP HH:mm\nyyyy-MM-dd")
                     }
                 }
             }
@@ -241,10 +249,9 @@ Window {
 
             Text {
                 id: text_scrolling_notification
-                text: Notification.get_merged_notification()
+                text: Notification.get_notification_merged()
                 height: parent.height
                 color: "#ffffff"
-                font.family: "Noto Sans CJK SC"
                 font.pixelSize: parent.height / 2
                 verticalAlignment: Text.AlignVCenter
                 onTextChanged: {

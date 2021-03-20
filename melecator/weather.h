@@ -1,6 +1,7 @@
 #ifndef WEATHER_H
 #define WEATHER_H
 
+#include <QDebug>
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -9,19 +10,24 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QObject>
+#include <QRegularExpression>
 
-#define WEATHER_URL "http://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&extensions=all&city="
+#define URL_WEATHER_CURRENT "http://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&city="
+#define URL_WEATHER_FORECAST "http://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&extensions=all&city="
 
 class Weather : public QObject {
 public:
-    Weather(const QString &city, QObject *parent = 0) : QObject(parent) { request_weather_data(WEATHER_URL + city); }
+    Weather(const QString &city, QObject *parent = 0) : QObject(parent) { request_weather_data(city); }
     ~Weather() {}
-    Q_INVOKABLE QJsonArray get_weather_forecast();
+    Q_INVOKABLE inline QJsonValue get_weather_current() { return document_current["lives"].toArray()[0]; }
+    Q_INVOKABLE inline QJsonArray get_weather_forecast() { return document_forecast["forecasts"].toArray().at(0)["casts"].toArray(); }
+    Q_INVOKABLE QUrl get_weather_image(const qint32 &type, const qint32 &day = 0);
+    Q_INVOKABLE inline bool is_weather_available() { return document_current.isNull() || document_forecast.isNull() ? false : true; }
 
 private:
     Q_OBJECT
-    QByteArray weather_data;
-    void request_weather_data(const QUrl &url);
+    QJsonDocument document_current, document_forecast;
+    void request_weather_data(const QString &city);
 };
 
 #endif // WEATHER_H

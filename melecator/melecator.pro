@@ -12,6 +12,6 @@ SOURCES += main.cpp \
     notification.cpp \
     weather.cpp
 
-RC_ICONS += res/icon/app.ico
+RC_ICONS += res/icons/app_icon.ico
 
 RESOURCES += app.qrc
