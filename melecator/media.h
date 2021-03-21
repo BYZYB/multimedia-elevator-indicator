@@ -11,17 +11,18 @@
 
 class Media : public QObject {
 public:
-    Media(const QString &path, QObject *parent = 0) : QObject(parent) { read_media_file(path); }
+    Media(const QString &path, QObject *parent = 0) : QObject(parent), path(path) {}
     ~Media() {}
     Q_INVOKABLE inline qint32 get_image_amount() { return image_data.size(); }
     Q_INVOKABLE inline QStringList get_image_path() { return image_data; }
     Q_INVOKABLE inline qint32 get_video_amount() { return video_data.size(); }
     Q_INVOKABLE inline QStringList get_video_path() { return video_data; }
+    Q_INVOKABLE void read_media_file();
 
 private:
     Q_OBJECT
+    QString path;
     QStringList image_data, video_data;
-    void read_media_file(const QString &path);
 };
 
 #endif // MEDIA_H

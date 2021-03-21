@@ -43,7 +43,7 @@ QUrl Weather::get_weather_image(const qint32 &type, const qint32 &day) {
 }
 
 // Request the weather data of a specific city using AMAP weather API (in JSON format, which is designed to block main thread)
-void Weather::request_weather_data(const QString &city) {
+void Weather::request_weather_data() {
     QEventLoop loop;
     QNetworkAccessManager manager;
     const QNetworkRequest request_current(URL_WEATHER_CURRENT + city), request_forecast(URL_WEATHER_FORECAST + city);

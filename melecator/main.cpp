@@ -1,3 +1,4 @@
+#include "calendar.h"
 #include "media.h"
 #include "notification.h"
 #include "weather.h"

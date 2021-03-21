@@ -47,7 +47,7 @@ QString Notification::get_notification_merged() {
 }
 
 // Read all notification files (*.txt) in a specific directory
-void Notification::read_notification_file(const QString &path) {
+void Notification::read_notification_file() {
     const QDir dir(path);
     const QStringList list = dir.entryList({"*.txt"}, QDir::Files | QDir::Readable, QDir::Name);
 

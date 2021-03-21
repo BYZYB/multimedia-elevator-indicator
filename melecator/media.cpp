@@ -1,7 +1,7 @@
 #include "media.h"
 
 // Get the absolute path of each media file (images and videos) in a specific directory
-void Media::read_media_file(const QString &path) {
+void Media::read_media_file() {
     const QDir image_dir(path + PATH_IMAGE), video_dir(path + PATH_VIDEO);
     const QStringList image_list = image_dir.entryList({"*.bmp", "*.jpg", "*.png"}, QDir::Files | QDir::Readable, QDir::Name), video_list = video_dir.entryList({"*.avi", "*.mp4"}, QDir::Files | QDir::Readable, QDir::Name);
 
