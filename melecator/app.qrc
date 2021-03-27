@@ -12,6 +12,7 @@
         <file>res/icons/weather/dust.png</file>
         <file>res/icons/weather/fog-day.png</file>
         <file>res/icons/weather/fog-night.png</file>
+        <file>res/icons/weather/humidity.png</file>
         <file>res/icons/weather/rain.png</file>
         <file>res/icons/weather/snow.png</file>
         <file>res/icons/weather/storm.png</file>

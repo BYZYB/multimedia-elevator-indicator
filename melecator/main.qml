@@ -5,36 +5,31 @@ import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 
 Window {
-    width: 1280
-    height: 720
-    minimumWidth: 1280
     minimumHeight: 720
+    minimumWidth: 1280
     title: "电梯多媒体指示系统"
     visible: true
 
     Flow {
         id: panel_media
-        x: 0
-        y: 0
-        width: parent.width - panel_elevator.width
         height: parent.height - panel_datetime_scrolling.height
         padding: 16
         spacing: 16
+        width: parent.width * 2 / 3
 
         Rectangle {
             id: background_player
-            width: panel_media.width - panel_media.spacing * 2
-            height: panel_media.height - background_weather.height - panel_media.spacing * 3
             color: "#80000000"
+            height: panel_media.height - background_weather.height - 48
             radius: 8
+            width: panel_media.width - 32
 
             BusyIndicator {
                 id: indicator_player
-                anchors.centerIn: parent
+                anchors.centerIn: background_player
             }
 
             VideoOutput {
-                id: videooutput_player
                 anchors.fill: background_player
                 fillMode: VideoOutput.PreserveAspectCrop
                 source: MediaPlayer {
@@ -48,17 +43,16 @@ Window {
 
             Button {
                 id: button_next
-                width: height / 1.5
-                height: background_player.height / 5
-                visible: false
                 anchors.right: background_player.right
                 anchors.verticalCenter: background_player.verticalCenter
-                font.pixelSize: height / 2
+                height: background_player.height / 5
                 icon.source: "qrc:/res/icons/player/next.png"
                 opacity: 0.5
                 ToolTip.text: "下一个"
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered || pressed
+                visible: false
+                width: height * 2 / 3
                 onClicked: {
                     list_player.next()
                 }
@@ -66,17 +60,16 @@ Window {
 
             Button {
                 id: button_previous
-                width: button_next.width
-                height: button_next.height
-                visible: button_next.visible
                 anchors.left: background_player.left
                 anchors.verticalCenter: background_player.verticalCenter
-                font.pixelSize: button_next.font.pixelSize
+                height: background_player.height / 5
                 icon.source: "qrc:/res/icons/player/previous.png"
-                opacity: button_next.opacity
+                opacity: 0.5
                 ToolTip.text: "上一个"
                 ToolTip.timeout: 3000
                 ToolTip.visible: hovered || pressed
+                visible: false
+                width: height * 2 / 3
                 onClicked: {
                     list_player.previous()
                 }
@@ -84,13 +77,10 @@ Window {
 
             Text {
                 id: text_player
-                text: "🚫 无媒体文件"
-                height: background_player.height
-                width: background_player.width
+                anchors.centerIn: background_player
                 color: "#ffffff"
                 font.pixelSize: background_player.height / 8
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+                text: "🚫 无媒体文件"
                 visible: false
             }
 
@@ -103,6 +93,7 @@ Window {
                     Media.read_media_file()
                     var video_amount = Media.get_video_amount()
                     var video_path = Media.get_video_path()
+                    list_player.clear()
 
                     if (video_amount > 0) {
                         for (var i = 0; i < video_amount; i++) {
@@ -110,11 +101,11 @@ Window {
                         }
 
                         button_previous.visible = button_next.visible = true
+                        text_player.visible = false
                         media_player.play()
                     } else {
                         button_previous.visible = button_next.visible = false
                         text_player.visible = true
-                        list_player.clear()
                         media_player.stop()
                     }
                 }
@@ -123,10 +114,15 @@ Window {
 
         Rectangle {
             id: background_weather
-            width: panel_media.width / 2 - panel_media.spacing * 1.5
+            color: "#80000000"
             height: panel_media.height / 4
-            color: background_player.color
-            radius: background_player.radius
+            radius: 8
+            width: panel_media.width / 2 - 24
+
+            BusyIndicator {
+                id: indicator_weather
+                anchors.centerIn: background_weather
+            }
 
             SwipeView {
                 id: swipeview_weather
@@ -134,18 +130,80 @@ Window {
                 clip: true
 
                 Item {
-                    BusyIndicator {
-                        id: indicator_weather
-                        anchors.centerIn: parent
-                    }
-
                     Image {
-                        id: image_weather
-                        width: height
-                        height: parent.height * 2 / 3
+                        id: image_weather_current
                         anchors.left: parent.left
                         anchors.leftMargin: 16
                         anchors.verticalCenter: parent.verticalCenter
+                        fillMode: Image.PreserveAspectFit
+                        height: parent.height * 2 / 3
+                    }
+
+                    Text {
+                        id: text_weather_current
+                        anchors.left: image_weather_current.right
+                        anchors.leftMargin: parent.width / 16
+                        anchors.top: parent.top
+                        anchors.topMargin: 16
+                        color: "#ffffff"
+                        font.pixelSize: parent.height / 6
+                        font.weight: Font.Bold
+                        lineHeight: height
+                    }
+
+                    Text {
+                        id: text_weather_current_realtime
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 16
+                        anchors.left: text_weather_current.left
+                        color: "#ffffff"
+                        font.pixelSize: parent.height / 2
+                        font.weight: Font.Light
+                    }
+
+                    Image {
+                        id: image_weather_current_humidity
+                        anchors.left: text_weather_current_realtime.right
+                        anchors.leftMargin: 16
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenterOffset: -text_weather_current_humidity.height / 2 - 8
+                        fillMode: Image.PreserveAspectFit
+                        height: parent.height / 6
+                        source: "qrc:/res/icons/weather/humidity.png"
+                        visible: false
+                    }
+
+                    Text {
+                        id: text_weather_current_humidity
+                        anchors.left: image_weather_current_humidity.right
+                        anchors.leftMargin: 8
+                        anchors.top: image_weather_current_humidity.top
+                        anchors.topMargin: -8
+                        color: "#ffffff"
+                        font.pixelSize: parent.height / 6
+                        lineHeight: height
+                    }
+
+                    Image {
+                        id: image_weather_current_windpower
+                        anchors.left: image_weather_current_humidity.left
+                        anchors.top: image_weather_current_humidity.bottom
+                        anchors.topMargin: 8
+                        fillMode: Image.PreserveAspectFit
+                        height: parent.height / 6
+                        source: "qrc:/res/icons/weather/wind.png"
+                        visible: false
+                    }
+
+                    Text {
+                        id: text_weather_current_windpower
+                        anchors.left: image_weather_current_windpower.right
+                        anchors.leftMargin: 8
+                        anchors.top: image_weather_current_windpower.top
+                        anchors.topMargin: -8
+                        color: "#ffffff"
+                        font.pixelSize: parent.height / 6
+                        lineHeight: height
                     }
                 }
 
@@ -170,9 +228,23 @@ Window {
                     if (Weather.is_weather_available()) {
                         var weather_current = Weather.get_weather_current()
                         var weather_forecast = Weather.get_weather_forecast()
-                        image_weather.source = Weather.get_weather_image(0)
+                        image_weather_current.source = Weather.get_weather_image(
+                                    0)
+                        image_weather_current_humidity.visible
+                                = image_weather_current_windpower.visible = true
+                        text_weather_current.text = weather_current["weather"]
+                                + " | " + weather_forecast[0]["nighttemp"]
+                                + " ~ " + weather_forecast[0]["daytemp"] + "℃"
+                        text_weather_current_realtime.text = weather_current["temperature"] + "°"
+                        text_weather_current_humidity.text = weather_current["humidity"] + "%"
+                        text_weather_current_windpower.text = weather_current["windpower"] + "级"
                     } else {
-                        image_weather.source = "qrc:/res/icons/weather/unknown.png"
+                        image_weather_current.source = "qrc:/res/icons/weather/unknown.png"
+                        image_weather_current_humidity.visible
+                                = image_weather_current_windpower.visible = false
+                        text_weather_current.text = text_weather_current_realtime.text
+                                = text_weather_current_humidity.text
+                                = text_weather_current_windpower.text = ""
                     }
                 }
             }
@@ -180,14 +252,15 @@ Window {
 
         Rectangle {
             id: background_calendar
-            width: background_weather.width
-            height: background_weather.height
             color: background_player.color
+            height: background_weather.height
             radius: background_player.radius
+            width: background_weather.width
 
             SwipeView {
                 id: swipeview_right
                 anchors.fill: background_calendar
+                clip: true
 
                 Item {}
 
@@ -205,24 +278,22 @@ Window {
 
     Flow {
         id: panel_elevator
-        x: panel_media.width
-        y: 0
-        width: parent.width / 3
         height: panel_media.height
+        width: parent.width - panel_media.width
+        x: panel_media.width
     }
 
     Row {
         id: panel_datetime_scrolling
-        x: 0
-        y: parent.height - height
+        height: parent.height / 9 - 16
         width: parent.width
-        height: parent.height / 9 - panel_media.spacing
+        y: parent.height - height
 
         Rectangle {
             id: background_datetime
-            width: panel_datetime_scrolling.width / 8
-            height: panel_datetime_scrolling.height
             color: "#bfff0000"
+            height: panel_datetime_scrolling.height
+            width: panel_datetime_scrolling.width / 8
 
             BusyIndicator {
                 id: indicator_datetime
@@ -231,8 +302,7 @@ Window {
 
             Text {
                 id: text_datetime
-                height: background_datetime.height
-                width: background_datetime.width
+                anchors.centerIn: background_datetime
                 color: "#ffffff"
                 font.pixelSize: background_datetime.height / 3
                 font.weight: Font.Medium
@@ -246,18 +316,17 @@ Window {
                 repeat: true
                 triggeredOnStart: true
                 onTriggered: {
-                    text_datetime.text = Qt.formatDateTime(
-                                new Date(), "AP HH:mm\nyyyy-MM-dd")
+                    text_datetime.text = Notification.get_current_datetime()
                 }
             }
         }
 
         Rectangle {
             id: background_scrolling_notification
-            width: panel_datetime_scrolling.width - background_datetime.width
-            height: panel_datetime_scrolling.height
             clip: true
             color: "#bf000000"
+            height: panel_datetime_scrolling.height
+            width: panel_datetime_scrolling.width - background_datetime.width
 
             BusyIndicator {
                 id: indicator_scrolling_notification
@@ -266,7 +335,7 @@ Window {
 
             Text {
                 id: text_scrolling_notification
-                height: background_scrolling_notification.height
+                anchors.verticalCenter: background_scrolling_notification.verticalCenter
                 color: "#ffffff"
                 font.pixelSize: background_scrolling_notification.height / 2
                 verticalAlignment: Text.AlignVCenter

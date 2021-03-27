@@ -19,7 +19,7 @@ QUrl Weather::get_weather_image(const qint32 &type, const qint32 &day) {
     }
 
     // Return suitable weather image according to phenomenon and time (day or night)
-    if (phenomenon.contains("晴") || phenomenon == ("平静")) {
+    if (phenomenon.contains("晴")) {
         return is_night ? QUrl("qrc:/res/icons/weather/clear-night.png") : QUrl("qrc:/res/icons/weather/clear-day.png");
     } else if (phenomenon.contains("云")) {
         return is_night ? QUrl("qrc:/res/icons/weather/cloudy-night.png") : QUrl("qrc:/res/icons/weather/cloudy-day.png");

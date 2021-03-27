@@ -1,4 +1,7 @@
-CONFIG += c++latest ltcg optimize_full
+CONFIG += \
+    c++latest \
+    ltcg \
+    optimize_full
 
 HEADERS += \
     calendar.h \
@@ -6,7 +9,9 @@ HEADERS += \
     notification.h \
     weather.h
 
-QT += quick quickcontrols2
+QT += \
+    quick \
+    quickcontrols2
 
 SOURCES += main.cpp \
     calendar.cpp \
@@ -14,6 +19,8 @@ SOURCES += main.cpp \
     notification.cpp \
     weather.cpp
 
-RC_ICONS = res/icons/app_icon.ico
-
 RESOURCES += app.qrc
+
+win32 {
+    RC_ICONS = res/icons/app_icon.ico
+}
