@@ -18,5 +18,7 @@
         <file>res/icons/weather/storm.png</file>
         <file>res/icons/weather/unknown.png</file>
         <file>res/icons/weather/wind.png</file>
+        <file>res/icons/elevator/close-window.png</file>
+        <file>res/icons/elevator/settings.png</file>
     </qresource>
 </RCC>

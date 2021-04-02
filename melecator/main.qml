@@ -1,4 +1,3 @@
-import QtCharts 2.3
 import QtMultimedia 5.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -91,8 +90,8 @@ Window {
                 triggeredOnStart: true
                 onTriggered: {
                     Media.read_media_file()
-                    var video_amount = Media.get_video_amount()
-                    var video_path = Media.get_video_path()
+                    var video_amount = Media.get_video_amount(
+                                ), video_path = Media.get_video_path()
                     list_player.clear()
 
                     if (video_amount > 0) {
@@ -164,9 +163,9 @@ Window {
                     Image {
                         id: image_weather_current_humidity
                         anchors.left: text_weather_current_realtime.right
-                        anchors.leftMargin: 16
+                        anchors.leftMargin: parent.width / 16
                         anchors.verticalCenter: parent.verticalCenter
-                        anchors.verticalCenterOffset: -text_weather_current_humidity.height / 2 - 8
+                        anchors.verticalCenterOffset: -text_weather_current_humidity.height / 2 - 6
                         fillMode: Image.PreserveAspectFit
                         height: parent.height / 6
                         source: "qrc:/res/icons/weather/humidity.png"
@@ -188,7 +187,7 @@ Window {
                         id: image_weather_current_windpower
                         anchors.left: image_weather_current_humidity.left
                         anchors.top: image_weather_current_humidity.bottom
-                        anchors.topMargin: 8
+                        anchors.topMargin: 12
                         fillMode: Image.PreserveAspectFit
                         height: parent.height / 6
                         source: "qrc:/res/icons/weather/wind.png"
@@ -207,7 +206,132 @@ Window {
                     }
                 }
 
-                Item {}
+                Item {
+                    Row {
+                        anchors.fill: parent
+                        padding: 16
+
+                        Item {
+                            height: parent.height - 32
+                            width: (parent.width - 32) / 4
+
+                            Text {
+                                id: text_weather_forecast_0_date
+                                anchors.horizontalCenter: image_weather_forecast_0.horizontalCenter
+                                anchors.top: parent.top
+                                color: "#ffffff"
+                                font.pixelSize: parent.height / 6
+                                font.weight: Font.Bold
+                                text: "今 天"
+                            }
+
+                            Image {
+                                id: image_weather_forecast_0
+                                anchors.centerIn: parent
+                                fillMode: Image.PreserveAspectFit
+                                height: parent.height / 2.5
+                            }
+
+                            Text {
+                                id: text_weather_forecast_0_temperature
+                                anchors.bottom: parent.bottom
+                                anchors.horizontalCenter: image_weather_forecast_0.horizontalCenter
+                                color: "#ffffff"
+                                font.pixelSize: parent.height / 6
+                            }
+                        }
+
+                        Item {
+                            height: parent.height - 32
+                            width: (parent.width - 32) / 4
+
+                            Text {
+                                id: text_weather_forecast_1_date
+                                anchors.horizontalCenter: image_weather_forecast_1.horizontalCenter
+                                anchors.top: parent.top
+                                color: "#ffffff"
+                                font.pixelSize: parent.height / 6
+                                font.weight: Font.Bold
+                                text: "明 天"
+                            }
+
+                            Image {
+                                id: image_weather_forecast_1
+                                anchors.centerIn: parent
+                                fillMode: Image.PreserveAspectFit
+                                height: parent.height / 2.5
+                            }
+
+                            Text {
+                                id: text_weather_forecast_1_temperature
+                                anchors.bottom: parent.bottom
+                                anchors.horizontalCenter: image_weather_forecast_1.horizontalCenter
+                                color: "#ffffff"
+                                font.pixelSize: parent.height / 6
+                            }
+                        }
+
+                        Item {
+                            height: parent.height - 32
+                            width: (parent.width - 32) / 4
+
+                            Text {
+                                id: text_weather_forecast_2_date
+                                anchors.horizontalCenter: image_weather_forecast_2.horizontalCenter
+                                anchors.top: parent.top
+                                color: "#ffffff"
+                                font.pixelSize: parent.height / 6
+                                font.weight: Font.Bold
+                                text: "后 天"
+                            }
+
+                            Image {
+                                id: image_weather_forecast_2
+                                anchors.centerIn: parent
+                                fillMode: Image.PreserveAspectFit
+                                height: parent.height / 2.5
+                            }
+
+                            Text {
+                                id: text_weather_forecast_2_temperature
+                                anchors.bottom: parent.bottom
+                                anchors.horizontalCenter: image_weather_forecast_2.horizontalCenter
+                                color: "#ffffff"
+                                font.pixelSize: parent.height / 6
+                            }
+                        }
+
+                        Item {
+                            height: parent.height - 32
+                            width: (parent.width - 32) / 4
+
+                            Text {
+                                id: text_weather_forecast_3_date
+                                anchors.horizontalCenter: image_weather_forecast_3.horizontalCenter
+                                anchors.top: parent.top
+                                color: "#ffffff"
+                                font.pixelSize: parent.height / 6
+                                font.weight: Font.Bold
+                                text: "大后天"
+                            }
+
+                            Image {
+                                id: image_weather_forecast_3
+                                anchors.centerIn: parent
+                                fillMode: Image.PreserveAspectFit
+                                height: parent.height / 2.5
+                            }
+
+                            Text {
+                                id: text_weather_forecast_3_temperature
+                                anchors.bottom: parent.bottom
+                                anchors.horizontalCenter: image_weather_forecast_3.horizontalCenter
+                                color: "#ffffff"
+                                font.pixelSize: parent.height / 6
+                            }
+                        }
+                    }
+                }
             }
 
             PageIndicator {
@@ -226,18 +350,34 @@ Window {
                     Weather.request_weather_data()
 
                     if (Weather.is_weather_available()) {
-                        var weather_current = Weather.get_weather_current()
-                        var weather_forecast = Weather.get_weather_forecast()
+                        var weather_current = Weather.get_weather_current(
+                                    ), weather_forecast = Weather.get_weather_forecast()
                         image_weather_current.source = Weather.get_weather_image(
                                     0)
+                        image_weather_forecast_0.source = image_weather_current.source
+                                = Weather.get_weather_image(1, 0)
+                        image_weather_forecast_1.source = image_weather_current.source
+                                = Weather.get_weather_image(1, 1)
+                        image_weather_forecast_2.source = image_weather_current.source
+                                = Weather.get_weather_image(1, 2)
+                        image_weather_forecast_3.source = image_weather_current.source
+                                = Weather.get_weather_image(1, 3)
                         image_weather_current_humidity.visible
                                 = image_weather_current_windpower.visible = true
                         text_weather_current.text = weather_current["weather"]
                                 + " | " + weather_forecast[0]["nighttemp"]
-                                + " ~ " + weather_forecast[0]["daytemp"] + "℃"
-                        text_weather_current_realtime.text = weather_current["temperature"] + "°"
+                                + "° ~ " + weather_forecast[0]["daytemp"] + "°"
+                        text_weather_current_realtime.text = weather_current["temperature"]
                         text_weather_current_humidity.text = weather_current["humidity"] + "%"
                         text_weather_current_windpower.text = weather_current["windpower"] + "级"
+                        text_weather_forecast_0_temperature.text = weather_forecast[0]["nighttemp"]
+                                + "°/" + weather_forecast[0]["daytemp"] + "°"
+                        text_weather_forecast_1_temperature.text = weather_forecast[1]["nighttemp"]
+                                + "°/" + weather_forecast[1]["daytemp"] + "°"
+                        text_weather_forecast_2_temperature.text = weather_forecast[2]["nighttemp"]
+                                + "°/" + weather_forecast[2]["daytemp"] + "°"
+                        text_weather_forecast_3_temperature.text = weather_forecast[3]["nighttemp"]
+                                + "°/" + weather_forecast[3]["daytemp"] + "°"
                     } else {
                         image_weather_current.source = "qrc:/res/icons/weather/unknown.png"
                         image_weather_current_humidity.visible
@@ -252,10 +392,10 @@ Window {
 
         Rectangle {
             id: background_calendar
-            color: background_player.color
-            height: background_weather.height
-            radius: background_player.radius
-            width: background_weather.width
+            color: "#80000000"
+            height: panel_media.height / 4
+            radius: 8
+            width: panel_media.width / 2 - 24
 
             SwipeView {
                 id: swipeview_right
@@ -278,9 +418,46 @@ Window {
 
     Flow {
         id: panel_elevator
-        height: panel_media.height
+        height: parent.height - panel_datetime_scrolling.height
+        padding: 16
+        spacing: 16
         width: parent.width - panel_media.width
-        x: panel_media.width
+        x: parent.width * 2 / 3
+
+        Item {
+            height: panel_elevator.height / 10
+            width: panel_elevator.width - 32
+
+            Text {
+                id: text_elevator_demomode
+                anchors.verticalCenter: parent.verticalCenter
+                color: "#80000000"
+                font.pixelSize: parent.height / 2
+                text: "调试"
+            }
+
+            Button {
+                id: button_elevator_menu
+                anchors.right: button_elevator_exit.left
+                anchors.rightMargin: 16
+                anchors.verticalCenter: parent.verticalCenter
+                height: parent.height * 4 / 5
+                icon.source: "qrc:/res/icons/elevator/settings.png"
+                text: "设置"
+            }
+
+            Button {
+                id: button_elevator_exit
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                height: parent.height * 4 / 5
+                icon.source: "qrc:/res/icons/elevator/close-window.png"
+                text: "退出"
+                onClicked: {
+                    Qt.quit()
+                }
+            }
+        }
     }
 
     Row {
@@ -316,7 +493,8 @@ Window {
                 repeat: true
                 triggeredOnStart: true
                 onTriggered: {
-                    text_datetime.text = Notification.get_current_datetime()
+                    text_datetime.text = Qt.formatDateTime(
+                                new Date(), "AP HH:mm\nyyyy-MM-dd")
                 }
             }
         }
@@ -374,8 +552,8 @@ Window {
         running: true
         onTriggered: {
             timer_datetime.start()
-            indicator_datetime.destroy()
             timer_async_0.destroy()
+            indicator_datetime.destroy()
         }
     }
 
@@ -385,8 +563,8 @@ Window {
         running: true
         onTriggered: {
             timer_scrolling_notification.start()
-            indicator_scrolling_notification.destroy()
             timer_async_1.destroy()
+            indicator_scrolling_notification.destroy()
         }
     }
 
@@ -396,8 +574,8 @@ Window {
         running: true
         onTriggered: {
             timer_player.start()
-            indicator_player.destroy()
             timer_async_2.destroy()
+            indicator_player.destroy()
         }
     }
 
@@ -407,8 +585,8 @@ Window {
         running: true
         onTriggered: {
             timer_weather.start()
-            indicator_weather.destroy()
             timer_async_3.destroy()
+            indicator_weather.destroy()
         }
     }
 }
