@@ -6,7 +6,11 @@
 #include <QFile>
 #include <QObject>
 
+#ifdef Q_OS_WIN
 #define PATH_NOTIFICATION "/../../test_data/notifications/"
+#else
+#define PATH_NOTIFICATION "/../test_data/notifications/"
+#endif
 
 class Notification : public QObject {
 public:

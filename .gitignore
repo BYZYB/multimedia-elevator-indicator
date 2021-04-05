@@ -32,8 +32,8 @@ qrc_*.cpp
 Thumbs.db
 *.res
 *.rc
-/.qmake.cache
-/.qmake.stash
+*.cache
+*.stash
 build-*/
 test_*/
 

@@ -21,6 +21,6 @@ SOURCES += main.cpp \
 
 RESOURCES += app.qrc
 
-win32 {
+windows {
     RC_ICONS = res/icons/app_icon.ico
 }

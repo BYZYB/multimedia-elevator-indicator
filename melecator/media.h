@@ -6,8 +6,13 @@
 #include <QFile>
 #include <QObject>
 
+#ifdef Q_OS_WIN
 #define PATH_IMAGE "/../../test_data/images/"
 #define PATH_VIDEO "/../../test_data/videos/"
+#else
+#define PATH_IMAGE "/../test_data/images/"
+#define PATH_VIDEO "/../test_data/videos/"
+#endif
 
 class Media : public QObject {
 public:
