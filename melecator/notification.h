@@ -25,6 +25,10 @@ private:
     Q_OBJECT
     QMap<QString, QString> notification_data;
     QString path;
+
+signals:
+    void notificationAvailable();
+    void notificationUnavailable();
 };
 
 #endif // NOTIFICATION_H

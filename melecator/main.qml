@@ -9,6 +9,82 @@ Window {
     title: "电梯多媒体指示系统 - " + width + "×" + height
     visible: true
 
+    Connections {
+        target: Media
+
+        function onMediaAvailable() {
+            var video_amount = Media.get_video_amount(
+                        ), video_path = Media.get_video_path()
+
+            for (var i = 0; i < video_amount; i++) {
+                list_player.addItem(video_path[i])
+            }
+
+            button_previous.visible = button_next.visible = true
+            text_player.visible = false
+            media_player.play()
+        }
+
+        function onMediaUnavailable() {
+            button_previous.visible = button_next.visible = false
+            text_player.visible = true
+        }
+    }
+
+    Connections {
+        target: Notification
+
+        function onNotificationAvailable() {
+            text_scrolling_notification.text = Notification.get_notification_merged()
+        }
+
+        function onNotificationUnavailable() {
+            text_scrolling_notification.text = "🔕 无通知"
+        }
+    }
+
+    Connections {
+        target: Weather
+
+        function onWeatherAvailable() {
+            var weather_current = Weather.get_weather_current(
+                        ), weather_forecast = Weather.get_weather_forecast()
+            image_weather_current.source = Weather.get_weather_image(0)
+            image_weather_forecast_0.source = Weather.get_weather_image(1, 0)
+            image_weather_forecast_1.source = Weather.get_weather_image(1, 1)
+            image_weather_forecast_2.source = Weather.get_weather_image(1, 2)
+            image_weather_forecast_3.source = Weather.get_weather_image(1, 3)
+            image_weather_current_humidity.visible = image_weather_current_windpower.visible = true
+            text_weather_current_city.text = weather_current["city"]
+            text_weather_current_title.text = weather_current["weather"] + " | "
+                    + weather_forecast[0]["nighttemp"] + "°~" + weather_forecast[0]["daytemp"] + "°"
+            text_weather_current_realtime.text = weather_current["temperature"]
+            text_weather_current_humidity.text = weather_current["humidity"] + "%"
+            text_weather_current_windpower.text = weather_current["windpower"] + " 级"
+            text_weather_forecast_0_temperature.text = weather_forecast[0]["nighttemp"]
+                    + "°/" + weather_forecast[0]["daytemp"] + "°"
+            text_weather_forecast_1_temperature.text = weather_forecast[1]["nighttemp"]
+                    + "°/" + weather_forecast[1]["daytemp"] + "°"
+            text_weather_forecast_2_temperature.text = weather_forecast[2]["nighttemp"]
+                    + "°/" + weather_forecast[2]["daytemp"] + "°"
+            text_weather_forecast_3_temperature.text = weather_forecast[3]["nighttemp"]
+                    + "°/" + weather_forecast[3]["daytemp"] + "°"
+        }
+
+        function onWeatherUnavailable() {
+            image_weather_current.source = image_weather_forecast_0.source
+                    = image_weather_forecast_1.source = image_weather_forecast_2.source
+                    = image_weather_forecast_3.source = "qrc:/res/icons/weather/unknown.png"
+            image_weather_current_humidity.visible = image_weather_current_windpower.visible = false
+            text_weather_current_city.text = "无数据"
+            text_weather_current_title.text = text_weather_current_realtime.text
+                    = text_weather_current_humidity.text = text_weather_current_windpower.text = ""
+            text_weather_forecast_0_temperature.text = text_weather_forecast_1_temperature.text
+                    = text_weather_forecast_2_temperature.text
+                    = text_weather_forecast_3_temperature.text = "--°/--°"
+        }
+    }
+
     Rectangle {
         id: background_player
 
@@ -22,12 +98,6 @@ Window {
         height: parent.height - background_datetime.height - background_weather.height - 48
         radius: 8
         width: parent.width * 2 / 3 - 32
-
-        BusyIndicator {
-            id: indicator_player
-
-            anchors.centerIn: parent
-        }
 
         VideoOutput {
             anchors.fill: parent
@@ -109,27 +179,14 @@ Window {
             triggeredOnStart: true
 
             onTriggered: {
-                Media.read_media_file()
-                var video_amount = Media.get_video_amount(
-                            ), video_path = Media.get_video_path()
+                media_player.stop()
                 list_player.clear()
-
-                if (video_amount > 0) {
-                    for (var i = 0; i < video_amount; i++) {
-                        list_player.addItem(video_path[i])
-                    }
-
-                    button_previous.visible = button_next.visible = true
-                    text_player.visible = false
-                    media_player.play()
-                } else {
-                    button_previous.visible = button_next.visible = false
-                    text_player.visible = true
-                    media_player.stop()
-                }
-
-                indicator_player.destroy()
+                Media.read_media_file()
             }
+        }
+
+        Component.onCompleted: {
+            timer_player.start()
         }
     }
 
@@ -145,12 +202,6 @@ Window {
         height: (parent.height - background_datetime.height) / 4
         radius: 8
         width: parent.width / 3 - 24
-
-        BusyIndicator {
-            id: indicator_weather
-
-            anchors.centerIn: parent
-        }
 
         SwipeView {
             id: swipeview_weather
@@ -479,54 +530,11 @@ Window {
 
             onTriggered: {
                 Weather.request_weather_data()
-
-                if (Weather.is_weather_available()) {
-                    var weather_current = Weather.get_weather_current(
-                                ), weather_forecast = Weather.get_weather_forecast()
-                    image_weather_current.source = Weather.get_weather_image(0)
-                    image_weather_forecast_0.source = Weather.get_weather_image(
-                                1, 0)
-                    image_weather_forecast_1.source = Weather.get_weather_image(
-                                1, 1)
-                    image_weather_forecast_2.source = Weather.get_weather_image(
-                                1, 2)
-                    image_weather_forecast_3.source = Weather.get_weather_image(
-                                1, 3)
-                    image_weather_current_humidity.visible
-                            = image_weather_current_windpower.visible = true
-                    text_weather_current_city.text = weather_current["city"]
-                    text_weather_current_title.text = weather_current["weather"]
-                            + " | " + weather_forecast[0]["nighttemp"] + "°~"
-                            + weather_forecast[0]["daytemp"] + "°"
-                    text_weather_current_realtime.text = weather_current["temperature"]
-                    text_weather_current_humidity.text = weather_current["humidity"] + "%"
-                    text_weather_current_windpower.text = weather_current["windpower"] + " 级"
-                    text_weather_forecast_0_temperature.text = weather_forecast[0]["nighttemp"]
-                            + "°/" + weather_forecast[0]["daytemp"] + "°"
-                    text_weather_forecast_1_temperature.text = weather_forecast[1]["nighttemp"]
-                            + "°/" + weather_forecast[1]["daytemp"] + "°"
-                    text_weather_forecast_2_temperature.text = weather_forecast[2]["nighttemp"]
-                            + "°/" + weather_forecast[2]["daytemp"] + "°"
-                    text_weather_forecast_3_temperature.text = weather_forecast[3]["nighttemp"]
-                            + "°/" + weather_forecast[3]["daytemp"] + "°"
-                } else {
-                    image_weather_current.source = image_weather_forecast_0.source
-                            = image_weather_forecast_1.source = image_weather_forecast_2.source
-                            = image_weather_forecast_3.source = "qrc:/res/icons/weather/unknown.png"
-                    image_weather_current_humidity.visible
-                            = image_weather_current_windpower.visible = false
-                    text_weather_current_city.text = "无数据"
-                    text_weather_current_title.text = text_weather_current_realtime.text
-                            = text_weather_current_humidity.text
-                            = text_weather_current_windpower.text = ""
-                    text_weather_forecast_0_temperature.text
-                            = text_weather_forecast_1_temperature.text
-                            = text_weather_forecast_2_temperature.text
-                            = text_weather_forecast_3_temperature.text = "--°/--°"
-                }
-
-                indicator_weather.destroy()
             }
+        }
+
+        Component.onCompleted: {
+            timer_weather.start()
         }
     }
 
@@ -573,12 +581,6 @@ Window {
         height: parent.height / 9 - 16
         width: parent.width / 8
 
-        BusyIndicator {
-            id: indicator_datetime
-
-            anchors.centerIn: parent
-        }
-
         Text {
             id: text_datetime
 
@@ -601,8 +603,11 @@ Window {
             onTriggered: {
                 text_datetime.text = Qt.formatDateTime(new Date(),
                                                        "AP HH:mm\nyyyy-MM-dd")
-                indicator_datetime.destroy()
             }
+        }
+
+        Component.onCompleted: {
+            timer_datetime.start()
         }
     }
 
@@ -617,12 +622,6 @@ Window {
         color: "#bf000000"
         height: background_datetime.height
         width: parent.width - background_datetime.width
-
-        BusyIndicator {
-            id: indicator_scrolling_notification
-
-            anchors.centerIn: parent
-        }
 
         Text {
             id: text_scrolling_notification
@@ -658,57 +657,11 @@ Window {
 
             onTriggered: {
                 Notification.read_notification_file()
-                text_scrolling_notification.text = Notification.get_notification_merged()
-                indicator_scrolling_notification.destroy()
             }
         }
-    }
 
-    Timer {
-        id: timer_async_0
-
-        interval: 500
-        running: true
-
-        onTriggered: {
-            timer_datetime.start()
-            timer_async_0.destroy()
-        }
-    }
-
-    Timer {
-        id: timer_async_1
-
-        interval: 1000
-        running: true
-
-        onTriggered: {
+        Component.onCompleted: {
             timer_scrolling_notification.start()
-            timer_async_1.destroy()
-        }
-    }
-
-    Timer {
-        id: timer_async_2
-
-        interval: 1500
-        running: true
-
-        onTriggered: {
-            timer_player.start()
-            timer_async_2.destroy()
-        }
-    }
-
-    Timer {
-        id: timer_async_3
-
-        interval: 2000
-        running: true
-
-        onTriggered: {
-            timer_weather.start()
-            timer_async_3.destroy()
         }
     }
 }

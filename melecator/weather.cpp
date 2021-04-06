@@ -15,6 +15,7 @@ QUrl Weather::get_weather_image(const qint32 &type, const qint32 &day) {
         phenomenon = document_forecast["forecasts"].toArray().at(0)["casts"].toArray().at(day)[is_night ? "nightweather" : "dayweather"].toString();
         break;
     default: // Unknown weather type, return the default image URL
+        qWarning() << "[E] Unknown weather type:" << type;
         return QUrl("qrc:/res/icons/no-weather.png");
     }
 
@@ -38,6 +39,7 @@ QUrl Weather::get_weather_image(const qint32 &type, const qint32 &day) {
     } else if (phenomenon.contains("雾")) {
         return is_night ? QUrl("qrc:/res/icons/weather/fog-night.png") : QUrl("qrc:/res/icons/weather/fog-day.png");
     } else { // Other weather phenomena
+        qWarning() << "[W] Unknown weather phenomena:" << phenomenon;
         return QUrl("qrc:/res/icons/weather/unknown.png");
     }
 }
@@ -54,8 +56,10 @@ void Weather::request_weather_data() {
 
     if (reply_current->error() || reply_forecast->error()) { // Error happened during network request
         qWarning() << "[E] Failed to get weather data for:" << city;
+        emit weatherUnavailable();
     } else { // Successfully got network reply, save them to JSON documents
         document_current = QJsonDocument::fromJson(reply_current->readAll());
         document_forecast = QJsonDocument::fromJson(reply_forecast->readAll());
+        emit weatherAvailable();
     }
 }

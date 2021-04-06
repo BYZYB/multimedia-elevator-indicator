@@ -30,26 +30,20 @@ QString Notification::get_notification(const qint32 &type, const qint32 &index) 
 
 // Get all notifications that merged into a single string (including title and content)
 QString Notification::get_notification_merged() {
-    if (!notification_data.empty()) { // Notification list is not empty
-        QString notification_merged;
+    QString notification_merged;
 
-        // Merge all notifications into a QString, including both title and content
-        for (QMap<QString, QString>::const_iterator iterator = notification_data.constBegin(); iterator != notification_data.constEnd(); iterator++) {
-            notification_merged.append("🔔 【" + iterator.key() + "】");
-            notification_merged.append(iterator.value().simplified() + "\t");
-        }
-
-        return notification_merged;
-    } else { // Notification list is empty
-        qWarning() << "[W] Empty notification list!";
-        return "🔕 无通知";
+    // Merge all notifications into a QString, including both title and content
+    for (QMap<QString, QString>::const_iterator iterator = notification_data.constBegin(); iterator != notification_data.constEnd(); iterator++) {
+        notification_merged.append("🔔 【" + iterator.key() + "】");
+        notification_merged.append(iterator.value().simplified() + "\t");
     }
+
+    return notification_merged;
 }
 
 // Read all notification files (*.txt) in a specific directory
 void Notification::read_notification_file() {
-    const QDir dir(path);
-    const QStringList list = dir.entryList({"*.txt"}, QDir::Files | QDir::Readable, QDir::Name);
+    const QStringList list = QDir(path).entryList({"*.txt"}, QDir::Files, QDir::Name);
 
     // Read all files in this directory
     for (QList<QString>::const_iterator iterator = list.constBegin(); iterator != list.constEnd(); iterator++) {
@@ -70,4 +64,6 @@ void Notification::read_notification_file() {
             file.close();
         }
     }
+
+    notification_data.empty() ? emit notificationUnavailable() : emit notificationAvailable();
 }

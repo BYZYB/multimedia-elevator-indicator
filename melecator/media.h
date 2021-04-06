@@ -28,6 +28,10 @@ private:
     Q_OBJECT
     QString path;
     QStringList image_data, video_data;
+
+signals:
+    void mediaAvailable();
+    void mediaUnavailable();
 };
 
 #endif // MEDIA_H

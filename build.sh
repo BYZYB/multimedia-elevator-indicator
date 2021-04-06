@@ -32,8 +32,9 @@ else
         echo "[I] No need to build melecator, start the executable directly."
         ./melecator
     else
-        echo "[W] Executable \"melecator\" not found, switch to build process."
+        echo "[W] Executable \"melecator\" not found, switch to normal build process."
         build "build"
+        echo "[I] Build process finished, starting the executable..."
         ./melecator
     fi
 fi
