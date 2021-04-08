@@ -4,17 +4,18 @@ CONFIG += \
     optimize_full
 
 HEADERS += \
-    calendar.h \
     media.h \
     notification.h \
     weather.h
 
 QT += \
+    multimedia \
+    multimediawidgets \
     quick \
     quickcontrols2
 
-SOURCES += main.cpp \
-    calendar.cpp \
+SOURCES += \
+    main.cpp \
     media.cpp \
     notification.cpp \
     weather.cpp

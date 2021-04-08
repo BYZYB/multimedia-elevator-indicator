@@ -17,17 +17,20 @@ Window {
                         ), video_path = Media.get_video_path()
 
             for (var i = 0; i < video_amount; i++) {
-                list_player.addItem(video_path[i])
+                list_media.addItem(video_path[i])
             }
 
-            button_previous.visible = button_next.visible = true
-            text_player.visible = false
-            media_player.play()
+            button_media_previous.visible = button_media_next.visible = true
+            text_media.visible = false
+            video_media.play()
+            indicator_media.running = false
         }
 
         function onMediaUnavailable() {
-            button_previous.visible = button_next.visible = false
-            text_player.visible = true
+            button_media_previous.visible = button_media_next.visible = false
+            text_media.visible = true
+            indicator_media.running = false
+            dialog_media.open()
         }
     }
 
@@ -35,58 +38,95 @@ Window {
         target: Notification
 
         function onNotificationAvailable() {
-            text_scrolling_notification.text = Notification.get_notification_merged()
+            text_notification.text = Notification.get_notification_merged()
         }
 
         function onNotificationUnavailable() {
-            text_scrolling_notification.text = "🔕 无通知"
+            text_notification.text = "🔕 无通知"
+            dialog_notification.open()
         }
     }
 
     Connections {
         target: Weather
 
+        function get_day_name(day) {
+            switch (day) {
+            case "1":
+                return "星期一"
+            case "2":
+                return "星期二"
+            case "3":
+                return "星期三"
+            case "4":
+                return "星期四"
+            case "5":
+                return "星期五"
+            case "6":
+                return "星期六"
+            case "7":
+                return "星期日"
+            default:
+                return "——"
+            }
+        }
+
         function onWeatherAvailable() {
             var weather_current = Weather.get_weather_current(
-                        ), weather_forecast = Weather.get_weather_forecast()
-            image_weather_current.source = Weather.get_weather_image(0)
-            image_weather_forecast_0.source = Weather.get_weather_image(1, 0)
-            image_weather_forecast_1.source = Weather.get_weather_image(1, 1)
-            image_weather_forecast_2.source = Weather.get_weather_image(1, 2)
-            image_weather_forecast_3.source = Weather.get_weather_image(1, 3)
+                        ), weather_forecast = Weather.get_weather_forecast(
+                               ), weather_forecast_0 = weather_forecast[0], weather_forecast_1 = weather_forecast[1], weather_forecast_2 = weather_forecast[2], weather_forecast_3 = weather_forecast[3], weather_forecast_0_daytemp = weather_forecast_0["daytemp"], weather_forecast_0_nighttemp = weather_forecast_0["nighttemp"]
             image_weather_current_humidity.visible = image_weather_current_windpower.visible = true
+            image_weather_current.source = Weather.get_weather_image(false)
+            image_weather_forecast_0.source = Weather.get_weather_image(true, 0)
+            image_weather_forecast_1.source = Weather.get_weather_image(true, 1)
+            image_weather_forecast_2.source = Weather.get_weather_image(true, 2)
+            image_weather_forecast_3.source = Weather.get_weather_image(true, 3)
             text_weather_current_city.text = weather_current["city"]
             text_weather_current_title.text = weather_current["weather"] + " | "
-                    + weather_forecast[0]["nighttemp"] + "°~" + weather_forecast[0]["daytemp"] + "°"
+                    + weather_forecast_0_nighttemp + "°~" + weather_forecast_0_daytemp
+                    + "° | " + weather_current["winddirection"]
             text_weather_current_realtime.text = weather_current["temperature"]
             text_weather_current_humidity.text = weather_current["humidity"] + "%"
             text_weather_current_windpower.text = weather_current["windpower"] + " 级"
-            text_weather_forecast_0_temperature.text = weather_forecast[0]["nighttemp"]
-                    + "°/" + weather_forecast[0]["daytemp"] + "°"
-            text_weather_forecast_1_temperature.text = weather_forecast[1]["nighttemp"]
-                    + "°/" + weather_forecast[1]["daytemp"] + "°"
-            text_weather_forecast_2_temperature.text = weather_forecast[2]["nighttemp"]
-                    + "°/" + weather_forecast[2]["daytemp"] + "°"
-            text_weather_forecast_3_temperature.text = weather_forecast[3]["nighttemp"]
-                    + "°/" + weather_forecast[3]["daytemp"] + "°"
+            text_weather_forecast_0_date.text = get_day_name(
+                        weather_forecast_0["week"])
+            text_weather_forecast_1_date.text = get_day_name(
+                        weather_forecast_1["week"])
+            text_weather_forecast_2_date.text = get_day_name(
+                        weather_forecast_2["week"])
+            text_weather_forecast_3_date.text = get_day_name(
+                        weather_forecast_3["week"])
+            text_weather_forecast_0_temperature.text = weather_forecast_0_nighttemp
+                    + "°~" + weather_forecast_0_daytemp + "°"
+            text_weather_forecast_1_temperature.text = weather_forecast_1["nighttemp"]
+                    + "°~" + weather_forecast_1["daytemp"] + "°"
+            text_weather_forecast_2_temperature.text = weather_forecast_2["nighttemp"]
+                    + "°~" + weather_forecast_2["daytemp"] + "°"
+            text_weather_forecast_3_temperature.text = weather_forecast_3["nighttemp"]
+                    + "°~" + weather_forecast_3["daytemp"] + "°"
+            indicator_weather.running = false
         }
 
         function onWeatherUnavailable() {
+            image_weather_current_humidity.visible = image_weather_current_windpower.visible = false
             image_weather_current.source = image_weather_forecast_0.source
                     = image_weather_forecast_1.source = image_weather_forecast_2.source
                     = image_weather_forecast_3.source = "qrc:/res/icons/weather/unknown.png"
-            image_weather_current_humidity.visible = image_weather_current_windpower.visible = false
             text_weather_current_city.text = "无数据"
             text_weather_current_title.text = text_weather_current_realtime.text
                     = text_weather_current_humidity.text = text_weather_current_windpower.text = ""
+            text_weather_forecast_0_date.text = text_weather_forecast_1_date.text
+                    = text_weather_forecast_2_date.text = text_weather_forecast_3_date.text = "——"
             text_weather_forecast_0_temperature.text = text_weather_forecast_1_temperature.text
                     = text_weather_forecast_2_temperature.text
                     = text_weather_forecast_3_temperature.text = "--°/--°"
+            indicator_weather.running = false
+            dialog_weather.open()
         }
     }
 
     Rectangle {
-        id: background_player
+        id: background_media
 
         anchors {
             left: parent.left
@@ -99,22 +139,30 @@ Window {
         radius: 8
         width: parent.width * 2 / 3 - 32
 
-        VideoOutput {
+        Video {
+            id: video_media
+
             anchors.fill: parent
             fillMode: VideoOutput.PreserveAspectCrop
-            source: MediaPlayer {
-                id: media_player
+            playlist: Playlist {
+                id: list_media
 
-                playlist: Playlist {
-                    id: list_player
-
-                    playbackMode: Playlist.Random
-                }
+                playbackMode: Playlist.Random
             }
         }
 
+        Text {
+            id: text_media
+
+            anchors.centerIn: parent
+            color: "#ffffff"
+            font.pixelSize: parent.height / 8
+            text: "⚠ 无媒体文件"
+            visible: false
+        }
+
         Button {
-            id: button_next
+            id: button_media_next
 
             anchors {
                 right: parent.right
@@ -129,64 +177,62 @@ Window {
             ToolTip {
                 text: "下一个"
                 timeout: 3000
-                visible: button_next.hovered || button_next.pressed
+                visible: button_media_next.hovered || button_media_next.pressed
             }
 
             onClicked: {
-                list_player.next()
+                list_media.next()
             }
         }
 
         Button {
-            id: button_previous
+            id: button_media_previous
 
             anchors {
                 left: parent.left
                 verticalCenter: parent.verticalCenter
             }
-            height: button_next.height
+            height: button_media_next.height
             icon.source: "qrc:/res/icons/player/previous.png"
             opacity: 0.5
             visible: false
-            width: button_next.width
+            width: button_media_next.width
 
             ToolTip {
                 text: "上一个"
                 timeout: 3000
-                visible: button_previous.hovered || button_previous.pressed
+                visible: button_media_previous.hovered
+                         || button_media_previous.pressed
             }
 
             onClicked: {
-                list_player.previous()
+                list_media.previous()
             }
         }
 
-        Text {
-            id: text_player
+        BusyIndicator {
+            id: indicator_media
 
             anchors.centerIn: parent
-            color: "#ffffff"
-            font.pixelSize: parent.height / 8
-            text: "⚠ 无媒体文件"
-            visible: false
         }
 
         Timer {
-            id: timer_player
+            id: timer_media
 
             interval: 3600000
             repeat: true
             triggeredOnStart: true
 
             onTriggered: {
-                media_player.stop()
-                list_player.clear()
+                indicator_media.running = true
+                video_media.stop()
+                list_media.clear()
                 Media.read_media_file()
             }
         }
 
         Component.onCompleted: {
-            timer_player.start()
+            timer_media.start()
         }
     }
 
@@ -194,8 +240,8 @@ Window {
         id: background_weather
 
         anchors {
-            left: background_player.left
-            top: background_player.bottom
+            left: background_media.left
+            top: background_media.bottom
             topMargin: 16
         }
         color: "#80000000"
@@ -366,7 +412,6 @@ Window {
                                 pixelSize: parent.height / 6
                                 weight: Font.Bold
                             }
-                            text: "今 天"
                         }
 
                         Image {
@@ -406,7 +451,6 @@ Window {
                                 pixelSize: text_weather_forecast_0_date.font.pixelSize
                                 weight: Font.Bold
                             }
-                            text: "明 天"
                         }
 
                         Image {
@@ -446,7 +490,6 @@ Window {
                                 pixelSize: text_weather_forecast_0_date.font.pixelSize
                                 weight: Font.Bold
                             }
-                            text: "后 天"
                         }
 
                         Image {
@@ -486,7 +529,6 @@ Window {
                                 pixelSize: text_weather_forecast_0_date.font.pixelSize
                                 weight: Font.Bold
                             }
-                            text: "大后天"
                         }
 
                         Image {
@@ -512,6 +554,12 @@ Window {
             }
         }
 
+        BusyIndicator {
+            id: indicator_weather
+
+            anchors.centerIn: parent
+        }
+
         PageIndicator {
             anchors {
                 bottom: parent.bottom
@@ -529,7 +577,8 @@ Window {
             triggeredOnStart: true
 
             onTriggered: {
-                Weather.request_weather_data()
+                indicator_weather.running = true
+                Weather.request_weather_data("广州市")
             }
         }
 
@@ -539,11 +588,11 @@ Window {
     }
 
     Rectangle {
-        id: background_calendar
+        id: background_ncov
 
         anchors {
-            right: background_player.right
-            top: background_player.bottom
+            right: background_media.right
+            top: background_media.bottom
             topMargin: 16
         }
         color: "#80000000"
@@ -552,7 +601,7 @@ Window {
         width: background_weather.width
 
         SwipeView {
-            id: swipeview_calendar
+            id: swipeview_ncov
 
             anchors.fill: parent
             clip: true
@@ -562,13 +611,35 @@ Window {
             Item {}
         }
 
+        BusyIndicator {
+            id: indicator_ncov
+
+            anchors.centerIn: parent
+        }
+
         PageIndicator {
             anchors {
                 bottom: parent.bottom
                 horizontalCenter: parent.horizontalCenter
             }
-            count: swipeview_calendar.count
-            currentIndex: swipeview_calendar.currentIndex
+            count: swipeview_ncov.count
+            currentIndex: swipeview_ncov.currentIndex
+        }
+
+        Timer {
+            id: timer_ncov
+
+            interval: 3600000
+            repeat: true
+            triggeredOnStart: true
+
+            onTriggered: {
+                indicator_ncov.running = true
+            }
+        }
+
+        Component.onCompleted: {
+            timer_ncov.start()
         }
     }
 
@@ -601,8 +672,8 @@ Window {
             triggeredOnStart: true
 
             onTriggered: {
-                text_datetime.text = Qt.formatDateTime(new Date(),
-                                                       "AP HH:mm\nyyyy-MM-dd")
+                text_datetime.text = (new Date).toLocaleString(
+                            Qt.locale(), "ddd HH:mm\nyyyy-MM-dd")
             }
         }
 
@@ -612,7 +683,7 @@ Window {
     }
 
     Rectangle {
-        id: background_scrolling_notification
+        id: background_notification
 
         anchors {
             bottom: parent.bottom
@@ -624,7 +695,7 @@ Window {
         width: parent.width - background_datetime.width
 
         Text {
-            id: text_scrolling_notification
+            id: text_notification
 
             anchors.verticalCenter: parent.verticalCenter
             color: "#ffffff"
@@ -632,24 +703,24 @@ Window {
             verticalAlignment: Text.AlignVCenter
 
             onTextChanged: {
-                anim_text_scrolling_notification.restart()
+                anim_text_notification.restart()
             }
 
             SequentialAnimation on x {
-                id: anim_text_scrolling_notification
+                id: anim_text_notification
 
                 loops: Animation.Infinite
 
                 PropertyAnimation {
                     duration: 60000
-                    from: background_scrolling_notification.width
-                    to: -text_scrolling_notification.width
+                    from: background_notification.width
+                    to: -text_notification.width
                 }
             }
         }
 
         Timer {
-            id: timer_scrolling_notification
+            id: timer_notification
 
             interval: 1800000
             repeat: true
@@ -661,7 +732,85 @@ Window {
         }
 
         Component.onCompleted: {
-            timer_scrolling_notification.start()
+            timer_notification.start()
+        }
+    }
+
+    Dialog {
+        id: dialog_media
+
+        anchors.centerIn: parent
+        focus: true
+        height: parent.height / 3
+        modal: true
+        standardButtons: Dialog.Retry | Dialog.Cancel
+        title: "⚠ 错误"
+        width: parent.width / 3
+
+        Text {
+            anchors.fill: parent
+            text: "获取媒体数据时发生异常，请检查应用程序输出以获取详细信息。\n\n是否重试？"
+            wrapMode: Text.Wrap
+        }
+
+        onAccepted: {
+            timer_media.restart()
+        }
+
+        onRejected: {
+            timer_media.stop()
+        }
+    }
+
+    Dialog {
+        id: dialog_notification
+
+        anchors.centerIn: parent
+        focus: true
+        height: dialog_media.height
+        modal: true
+        standardButtons: dialog_media.standardButtons
+        title: "⚠ 错误"
+        width: dialog_media.width
+
+        Text {
+            anchors.fill: parent
+            text: "获取通知数据时发生异常，请检查应用程序输出以获取详细信息。\n\n是否重试？"
+            wrapMode: Text.Wrap
+        }
+
+        onAccepted: {
+            timer_notification.restart()
+        }
+
+        onRejected: {
+            timer_notification.stop()
+        }
+    }
+
+    Dialog {
+        id: dialog_weather
+
+        anchors.centerIn: parent
+        focus: true
+        height: dialog_media.height
+        modal: true
+        standardButtons: dialog_media.standardButtons
+        title: "⚠ 错误"
+        width: dialog_media.width
+
+        Text {
+            anchors.fill: parent
+            text: "获取天气信息时发生异常，请检查应用程序输出以获取详细信息。\n\n是否重试？"
+            wrapMode: Text.Wrap
+        }
+
+        onAccepted: {
+            timer_weather.restart()
+        }
+
+        onRejected: {
+            timer_weather.stop()
         }
     }
 }

@@ -1,30 +1,14 @@
 #include "notification.h"
 
-// Get a notification by type (0: title, 1: content) and index (notification number)
-QString Notification::get_notification(const qint32 &type, const qint32 &index) {
-    if (!notification_data.empty()) {                          // Notification list is not empty
-        if (index >= 0 && index <= notification_data.size()) { // The notification index is acceptable
-            QMap<QString, QString>::const_iterator iterator = notification_data.constBegin();
-
-            // Get the notification data of a specific type (title or content)
-            switch (type) {
-            case 0: // Get notification title
-                iterator += index;
-                return iterator.key();
-            case 1: // Get notification content
-                iterator += index;
-                return iterator.value().trimmed();
-            default: // Unknown notification type
-                qWarning() << "[E] Wrong notification type: Index" << index << ", Type" << type;
-                return "🔕 通知类型错误";
-            }
-        } else { // Notification index is out of range
-            qWarning() << "[E] Notification index out of range: Index" << index << ", Type" << type;
-            return "🔕 通知不存在";
-        }
-    } else { // Notification list is empty
-        qWarning() << "[W] Empty notification list!";
-        return "🔕 无通知";
+// Get a notification by type (content or title) and index (notification number)
+QString Notification::get_notification(const bool &is_content, const qint32 &index) {
+    if (index >= 0 && index <= notification_data.size()) { // The notification index is acceptable
+        QMap<QString, QString>::const_iterator iterator = notification_data.constBegin();
+        iterator += index;
+        return is_content ? iterator.key() : iterator.value().trimmed();
+    } else { // Notification index is out of range
+        qWarning() << "[E] Notification index out of range: Index" << index << ", Type" << (is_content ? "content" : "title");
+        return "🔕 通知不存在";
     }
 }
 
