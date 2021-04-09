@@ -31,11 +31,12 @@ void Notification::read_notification_file() {
 
     // Read all files in this directory
     for (QList<QString>::const_iterator iterator = list.constBegin(); iterator != list.constEnd(); iterator++) {
-        QFile file(path + *iterator);
+        const QString full_path = path + *iterator;
+        QFile file(full_path);
 
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { // Cannot open file in readonly mode
-            qWarning() << "[E] Failed to open notification file in readonly mode:" << path;
-        } else { // File opened successfully, save notification title (line 1) and content (line 2+) into notification_list
+            qWarning() << "[E] Failed to open notification file in readonly mode:" << full_path;
+        } else { // File opened successfully, save notification title (line 1) and content (line 2+) into list
             QString content;
             const QString title = file.readLine().simplified();
 

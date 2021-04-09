@@ -13,15 +13,9 @@ Window {
         target: Media
 
         function onMediaAvailable() {
-            var video_amount = Media.get_video_amount(
-                        ), video_path = Media.get_video_path()
-
-            for (var i = 0; i < video_amount; i++) {
-                list_media.addItem(video_path[i])
-            }
-
             button_media_previous.visible = button_media_next.visible = true
             text_media.visible = false
+            list_media.addItems(Media.get_media_url())
             video_media.play()
             indicator_media.running = false
         }
@@ -31,6 +25,53 @@ Window {
             text_media.visible = true
             indicator_media.running = false
             dialog_media.open()
+        }
+    }
+
+    Connections {
+        target: Ncov
+
+        function onNcovAvailable() {
+            var ncov_capital = Ncov.get_ncov_capital(
+                        ), ncov_capital_mid = ncov_capital["midDangerCount"], ncov_capital_high = ncov_capital["highDangerCount"], ncov_province = Ncov.get_ncov_province()
+            text_ncov_capital_0_title.visible = text_ncov_capital_1_title.visible
+                    = text_ncov_capital_2_title.visible = text_ncov_capital_3_title.visible
+                    = text_ncov_province_0_title.visible = text_ncov_province_1_title.visible
+                    = text_ncov_province_2_title.visible = text_ncov_province_3_title.visible = true
+            text_ncov_province_title.text = "新冠疫情数据 | " + ncov_province["provinceName"]
+            text_ncov_province_title_time.text = "⏰ 更新时间 | "
+                    + new Date(ncov_province["updateTime"]).toLocaleString(
+                        Qt.locale(), "M月d日 HH:mm")
+            text_ncov_province_0_number.text = ncov_province["currentConfirmedCount"]
+            text_ncov_province_1_number.text = ncov_province["suspectedCount"]
+            text_ncov_province_2_number.text = ncov_province["curedCount"]
+            text_ncov_province_3_number.text = ncov_province["deadCount"]
+            text_ncov_capital_title.text = text_ncov_province_title.text + " > "
+                    + ncov_capital["cityName"]
+            text_ncov_capital_title_risk.text = "📊 防控状况 | "
+                    + (ncov_capital_high > 0 ? ncov_capital_high + " 个高风险地区" : ncov_capital_mid
+                                               > 0 ? ncov_capital_mid + " 个中风险地区" : "低风险")
+            text_ncov_capital_0_number.text = ncov_capital["currentConfirmedCount"]
+            text_ncov_capital_1_number.text = ncov_capital["suspectedCount"]
+            text_ncov_capital_2_number.text = ncov_capital["curedCount"]
+            text_ncov_capital_3_number.text = ncov_capital["deadCount"]
+            indicator_ncov.running = false
+        }
+
+        function onNcovUnavailable() {
+            text_ncov_capital_0_title.visible = text_ncov_capital_1_title.visible
+                    = text_ncov_capital_2_title.visible = text_ncov_capital_3_title.visible
+                    = text_ncov_province_0_title.visible = text_ncov_province_1_title.visible
+                    = text_ncov_province_2_title.visible
+                    = text_ncov_province_3_title.visible = false
+            text_ncov_capital_title.text = text_ncov_province_title.text = "⚠ 无数据"
+            text_ncov_capital_title_risk.text = text_ncov_capital_0_number.text
+                    = text_ncov_capital_1_number.text = text_ncov_capital_2_number.text
+                    = text_ncov_capital_3_number.text = text_ncov_province_title_time.text
+                    = text_ncov_province_0_number.text = text_ncov_province_1_number.text
+                    = text_ncov_province_2_number.text = text_ncov_province_3_number.text = ""
+            indicator_ncov.running = false
+            dialog_ncov.open()
         }
     }
 
@@ -74,7 +115,7 @@ Window {
         function onWeatherAvailable() {
             var weather_current = Weather.get_weather_current(
                         ), weather_forecast = Weather.get_weather_forecast(
-                               ), weather_forecast_0 = weather_forecast[0], weather_forecast_1 = weather_forecast[1], weather_forecast_2 = weather_forecast[2], weather_forecast_3 = weather_forecast[3], weather_forecast_0_daytemp = weather_forecast_0["daytemp"], weather_forecast_0_nighttemp = weather_forecast_0["nighttemp"]
+                               ), weather_forecast_0 = weather_forecast[0], weather_forecast_0_daytemp = weather_forecast_0["daytemp"], weather_forecast_0_nighttemp = weather_forecast_0["nighttemp"], weather_forecast_1 = weather_forecast[1], weather_forecast_2 = weather_forecast[2], weather_forecast_3 = weather_forecast[3]
             image_weather_current_humidity.visible = image_weather_current_windpower.visible = true
             image_weather_current.source = Weather.get_weather_image(false)
             image_weather_forecast_0.source = Weather.get_weather_image(true, 0)
@@ -148,6 +189,32 @@ Window {
                 id: list_media
 
                 playbackMode: Playlist.Random
+
+                onCurrentIndexChanged: {
+                    animation_video_media.start()
+                }
+            }
+
+            ParallelAnimation {
+                id: animation_video_media
+
+                PropertyAnimation {
+                    duration: 500
+                    easing.type: Easing.InOutCubic
+                    from: 0
+                    property: "opacity"
+                    target: video_media
+                    to: 1
+                }
+
+                PropertyAnimation {
+                    duration: 500
+                    easing.type: Easing.InOutCubic
+                    from: 0.85
+                    property: "scale"
+                    target: video_media
+                    to: 1
+                }
             }
         }
 
@@ -588,8 +655,6 @@ Window {
     }
 
     Rectangle {
-        id: background_ncov
-
         anchors {
             right: background_media.right
             top: background_media.bottom
@@ -606,9 +671,377 @@ Window {
             anchors.fill: parent
             clip: true
 
-            Item {}
+            Item {
+                Text {
+                    id: text_ncov_province_title
 
-            Item {}
+                    anchors {
+                        left: parent.left
+                        leftMargin: 16
+                        top: parent.top
+                        topMargin: 16
+                    }
+                    color: "#ffffff"
+                    font {
+                        pixelSize: parent.height / 6
+                        weight: Font.Bold
+                    }
+                }
+
+                Text {
+                    id: text_ncov_province_title_time
+
+                    anchors {
+                        left: text_ncov_province_title.left
+                        top: text_ncov_province_title.bottom
+                    }
+                    color: "#ffffff"
+                    font {
+                        pixelSize: parent.height / 9
+                        weight: Font.Medium
+                    }
+                }
+
+                Row {
+                    anchors.top: text_ncov_province_title_time.bottom
+                    height: parent.height - text_ncov_province_title.height
+                            - text_ncov_province_title_time.height - 32
+                    width: parent.width
+
+                    Item {
+                        id: item_ncov_province_0
+
+                        height: parent.height
+                        width: parent.width / 4
+
+                        Text {
+                            id: text_ncov_province_0_number
+
+                            anchors {
+                                horizontalCenter: parent.horizontalCenter
+                                top: parent.top
+                                topMargin: -parent.height / 12
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: parent.height / 2
+                                weight: Font.Medium
+                            }
+                            lineHeight: height
+                        }
+
+                        Text {
+                            id: text_ncov_province_0_title
+
+                            anchors {
+                                bottom: parent.bottom
+                                horizontalCenter: parent.horizontalCenter
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_province_title_time.font.pixelSize
+                                weight: Font.Bold
+                            }
+                            text: "现存确诊"
+                            visible: false
+                        }
+                    }
+
+                    Item {
+                        height: item_ncov_province_0.height
+                        width: item_ncov_province_0.width
+
+                        Text {
+                            id: text_ncov_province_1_number
+
+                            anchors {
+                                horizontalCenter: parent.horizontalCenter
+                                top: parent.top
+                                topMargin: text_ncov_province_0_number.anchors.topMargin
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_province_0_number.font.pixelSize
+                                weight: Font.Medium
+                            }
+                        }
+
+                        Text {
+                            id: text_ncov_province_1_title
+
+                            anchors {
+                                bottom: parent.bottom
+                                horizontalCenter: parent.horizontalCenter
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_province_0_title.font.pixelSize
+                                weight: Font.Bold
+                            }
+                            text: "疑似病例"
+                            visible: false
+                        }
+                    }
+
+                    Item {
+                        height: item_ncov_province_0.height
+                        width: item_ncov_province_0.width
+
+                        Text {
+                            id: text_ncov_province_2_number
+
+                            anchors {
+                                horizontalCenter: parent.horizontalCenter
+                                top: parent.top
+                                topMargin: text_ncov_province_0_number.anchors.topMargin
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_province_0_number.font.pixelSize
+                                weight: Font.Medium
+                            }
+                        }
+
+                        Text {
+                            id: text_ncov_province_2_title
+
+                            anchors {
+                                bottom: parent.bottom
+                                horizontalCenter: parent.horizontalCenter
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_province_0_title.font.pixelSize
+                                weight: Font.Bold
+                            }
+                            text: "已治愈"
+                            visible: false
+                        }
+                    }
+
+                    Item {
+                        height: item_ncov_province_0.height
+                        width: item_ncov_province_0.width
+
+                        Text {
+                            id: text_ncov_province_3_number
+
+                            anchors {
+                                horizontalCenter: parent.horizontalCenter
+                                top: parent.top
+                                topMargin: text_ncov_province_0_number.anchors.topMargin
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_province_0_number.font.pixelSize
+                                weight: Font.Medium
+                            }
+                        }
+
+                        Text {
+                            id: text_ncov_province_3_title
+
+                            anchors {
+                                bottom: parent.bottom
+                                horizontalCenter: parent.horizontalCenter
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_province_0_title.font.pixelSize
+                                weight: Font.Bold
+                            }
+                            text: "死亡"
+                            visible: false
+                        }
+                    }
+                }
+            }
+
+            Item {
+                Text {
+                    id: text_ncov_capital_title
+
+                    anchors {
+                        left: parent.left
+                        leftMargin: 16
+                        top: parent.top
+                        topMargin: 16
+                    }
+                    color: "#ffffff"
+                    font {
+                        pixelSize: parent.height / 6
+                        weight: Font.Bold
+                    }
+                }
+
+                Text {
+                    id: text_ncov_capital_title_risk
+
+                    anchors {
+                        left: text_ncov_capital_title.left
+                        top: text_ncov_capital_title.bottom
+                    }
+                    color: "#ffffff"
+                    font {
+                        pixelSize: parent.height / 9
+                        weight: Font.Medium
+                    }
+                }
+
+                Row {
+                    anchors.top: text_ncov_capital_title_risk.bottom
+                    height: parent.height - text_ncov_capital_title.height
+                            - text_ncov_capital_title_risk.height - 32
+                    width: parent.width
+
+                    Item {
+                        id: item_ncov_capital_0
+
+                        height: parent.height
+                        width: parent.width / 4
+
+                        Text {
+                            id: text_ncov_capital_0_number
+
+                            anchors {
+                                horizontalCenter: parent.horizontalCenter
+                                top: parent.top
+                                topMargin: -parent.height / 12
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: parent.height / 2
+                                weight: Font.Medium
+                            }
+                            lineHeight: height
+                        }
+
+                        Text {
+                            id: text_ncov_capital_0_title
+
+                            anchors {
+                                bottom: parent.bottom
+                                horizontalCenter: parent.horizontalCenter
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_capital_title_risk.font.pixelSize
+                                weight: Font.Bold
+                            }
+                            text: "现存确诊"
+                            visible: false
+                        }
+                    }
+
+                    Item {
+                        height: item_ncov_capital_0.height
+                        width: item_ncov_capital_0.width
+
+                        Text {
+                            id: text_ncov_capital_1_number
+
+                            anchors {
+                                horizontalCenter: parent.horizontalCenter
+                                top: parent.top
+                                topMargin: text_ncov_capital_0_number.anchors.topMargin
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_capital_0_number.font.pixelSize
+                                weight: Font.Medium
+                            }
+                        }
+
+                        Text {
+                            id: text_ncov_capital_1_title
+
+                            anchors {
+                                bottom: parent.bottom
+                                horizontalCenter: parent.horizontalCenter
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_capital_0_title.font.pixelSize
+                                weight: Font.Bold
+                            }
+                            text: "疑似病例"
+                            visible: false
+                        }
+                    }
+
+                    Item {
+                        height: item_ncov_capital_0.height
+                        width: item_ncov_capital_0.width
+
+                        Text {
+                            id: text_ncov_capital_2_number
+
+                            anchors {
+                                horizontalCenter: parent.horizontalCenter
+                                top: parent.top
+                                topMargin: text_ncov_capital_0_number.anchors.topMargin
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_capital_0_number.font.pixelSize
+                                weight: Font.Medium
+                            }
+                        }
+
+                        Text {
+                            id: text_ncov_capital_2_title
+
+                            anchors {
+                                bottom: parent.bottom
+                                horizontalCenter: parent.horizontalCenter
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_capital_0_title.font.pixelSize
+                                weight: Font.Bold
+                            }
+                            text: "已治愈"
+                            visible: false
+                        }
+                    }
+
+                    Item {
+                        height: item_ncov_capital_0.height
+                        width: item_ncov_capital_0.width
+
+                        Text {
+                            id: text_ncov_capital_3_number
+
+                            anchors {
+                                horizontalCenter: parent.horizontalCenter
+                                top: parent.top
+                                topMargin: text_ncov_capital_0_number.anchors.topMargin
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_capital_0_number.font.pixelSize
+                                weight: Font.Medium
+                            }
+                        }
+
+                        Text {
+                            id: text_ncov_capital_3_title
+
+                            anchors {
+                                bottom: parent.bottom
+                                horizontalCenter: parent.horizontalCenter
+                            }
+                            color: "#ffffff"
+                            font {
+                                pixelSize: text_ncov_capital_0_title.font.pixelSize
+                                weight: Font.Bold
+                            }
+                            text: "死亡"
+                            visible: false
+                        }
+                    }
+                }
+            }
         }
 
         BusyIndicator {
@@ -635,6 +1068,7 @@ Window {
 
             onTriggered: {
                 indicator_ncov.running = true
+                Ncov.request_ncov_data("广东省")
             }
         }
 
@@ -672,7 +1106,7 @@ Window {
             triggeredOnStart: true
 
             onTriggered: {
-                text_datetime.text = (new Date).toLocaleString(
+                text_datetime.text = new Date().toLocaleString(
                             Qt.locale(), "ddd HH:mm\nyyyy-MM-dd")
             }
         }
@@ -703,19 +1137,16 @@ Window {
             verticalAlignment: Text.AlignVCenter
 
             onTextChanged: {
-                anim_text_notification.restart()
+                animation_text_notification.restart()
             }
 
-            SequentialAnimation on x {
-                id: anim_text_notification
+            PropertyAnimation on x {
+                id: animation_text_notification
 
+                duration: 60000
+                from: background_notification.width
                 loops: Animation.Infinite
-
-                PropertyAnimation {
-                    duration: 60000
-                    from: background_notification.width
-                    to: -text_notification.width
-                }
+                to: -text_notification.width
             }
         }
 
@@ -749,7 +1180,7 @@ Window {
 
         Text {
             anchors.fill: parent
-            text: "获取媒体数据时发生异常，请检查应用程序输出以获取详细信息。\n\n是否重试？"
+            text: "获取媒体数据失败，在指定目录下未找到媒体文件。\n\n是否重试？"
             wrapMode: Text.Wrap
         }
 
@@ -759,6 +1190,32 @@ Window {
 
         onRejected: {
             timer_media.stop()
+        }
+    }
+
+    Dialog {
+        id: dialog_ncov
+
+        anchors.centerIn: parent
+        focus: true
+        height: dialog_media.height
+        modal: true
+        standardButtons: dialog_media.standardButtons
+        title: "⚠ 错误"
+        width: dialog_media.width
+
+        Text {
+            anchors.fill: parent
+            text: "获取疫情信息时发生异常，请检查应用程序输出以获取详细信息。\n\n是否重试？"
+            wrapMode: Text.Wrap
+        }
+
+        onAccepted: {
+            timer_ncov.restart()
+        }
+
+        onRejected: {
+            timer_ncov.stop()
         }
     }
 
@@ -775,7 +1232,7 @@ Window {
 
         Text {
             anchors.fill: parent
-            text: "获取通知数据时发生异常，请检查应用程序输出以获取详细信息。\n\n是否重试？"
+            text: "获取通知数据失败，在指定目录下未找到通知文件。\n\n是否重试？"
             wrapMode: Text.Wrap
         }
 
