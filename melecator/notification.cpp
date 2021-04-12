@@ -1,5 +1,7 @@
 #include "notification.h"
 
+QMap<QString, QString> Notification::notification_data;
+
 // Get a notification by type (content or title) and index (notification number)
 QString Notification::get_notification(const bool &is_content, const qint32 &index) {
     if (index >= 0 && index <= notification_data.size()) { // The notification index is acceptable

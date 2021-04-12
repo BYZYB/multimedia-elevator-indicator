@@ -727,7 +727,6 @@ Window {
                                 pixelSize: parent.height / 2
                                 weight: Font.Medium
                             }
-                            lineHeight: height
                         }
 
                         Text {
@@ -913,7 +912,6 @@ Window {
                                 pixelSize: parent.height / 2
                                 weight: Font.Medium
                             }
-                            lineHeight: height
                         }
 
                         Text {
@@ -1075,6 +1073,270 @@ Window {
         Component.onCompleted: {
             timer_ncov.start()
         }
+    }
+
+    Button {
+        id: button_elevator_floor
+
+        anchors {
+            left: background_media.right
+            leftMargin: 16
+        }
+        flat: true
+        height: button_elevator_exit.height
+        icon.source: "qrc:/res/icons/elevator/building.png"
+        text: "第 6 层"
+
+        ToolTip {
+            text: "楼层信息"
+            timeout: 3000
+            visible: button_elevator_floor.hovered
+                     || button_elevator_floor.pressed
+        }
+    }
+
+    Button {
+        id: button_elevator_setting
+
+        anchors.right: button_elevator_exit.left
+        flat: true
+        height: button_elevator_exit.height
+        icon.source: "qrc:/res/icons/elevator/settings.png"
+
+        ToolTip {
+            text: "设置"
+            timeout: 3000
+            visible: button_elevator_setting.hovered
+                     || button_elevator_setting.pressed
+        }
+    }
+
+    Button {
+        id: button_elevator_exit
+
+        anchors {
+            right: parent.right
+            rightMargin: 16
+        }
+        flat: true
+        height: parent.height / 12
+        icon.source: "qrc:/res/icons/elevator/exit.png"
+
+        ToolTip {
+            text: "退出"
+            timeout: 3000
+            visible: button_elevator_exit.hovered
+                     || button_elevator_exit.pressed
+        }
+
+        onClicked: {
+            Qt.quit()
+        }
+    }
+
+    Text {
+        id: text_elevator_floor
+
+        anchors {
+            horizontalCenter: button_downstairs.horizontalCenter
+            top: button_elevator_exit.bottom
+        }
+        font {
+            pixelSize: parent.height / 4
+            weight: Font.Light
+        }
+        text: "10"
+    }
+
+    Item {
+        anchors {
+            horizontalCenter: button_downstairs.horizontalCenter
+            top: text_elevator_floor.top
+        }
+        height: text_elevator_floor.height / 6
+        width: image_elevator_direction.width + text_elevator_direction.width
+
+        Image {
+            id: image_elevator_direction
+
+            fillMode: Image.PreserveAspectFit
+            height: parent.height
+            source: "qrc:/res/icons/elevator/go-up.png"
+        }
+
+        Text {
+            id: text_elevator_direction
+
+            anchors {
+                left: image_elevator_direction.right
+                leftMargin: 16
+                verticalCenter: image_elevator_direction.verticalCenter
+            }
+            font {
+                pixelSize: parent.height
+                weight: Font.Medium
+            }
+            text: "正在上行"
+        }
+    }
+
+    Item {
+        id: item_elevator_name
+
+        anchors {
+            left: button_elevator_floor.left
+            top: text_elevator_floor.bottom
+        }
+        height: button_elevator_exit.height / 2
+        width: image_elevator_name.width + text_elevator_name.width + 8
+
+        Image {
+            id: image_elevator_name
+
+            fillMode: Image.PreserveAspectFit
+            height: parent.height
+            source: "qrc:/res/icons/elevator/list.png"
+        }
+
+        Text {
+            id: text_elevator_name
+
+            anchors {
+                left: image_elevator_name.right
+                leftMargin: 8
+                verticalCenter: image_elevator_name.verticalCenter
+            }
+            font.pixelSize: parent.height
+            text: "客梯"
+        }
+    }
+
+    Item {
+        anchors {
+            horizontalCenter: button_downstairs.horizontalCenter
+            verticalCenter: item_elevator_name.verticalCenter
+        }
+        height: item_elevator_name.height
+        width: image_elevator_time.width + text_elevator_time.width + 8
+
+        Image {
+            id: image_elevator_time
+
+            fillMode: Image.PreserveAspectFit
+            height: parent.height
+            source: "qrc:/res/icons/elevator/time.png"
+        }
+
+        Text {
+            id: text_elevator_time
+
+            anchors {
+                left: image_elevator_time.right
+                leftMargin: 8
+                verticalCenter: image_elevator_time.verticalCenter
+            }
+            font.pixelSize: parent.height
+            text: "01:30"
+        }
+    }
+
+    Item {
+        anchors {
+            right: button_elevator_exit.right
+            verticalCenter: item_elevator_name.verticalCenter
+        }
+        height: item_elevator_name.height
+        width: image_elevator_weight.width + text_elevator_weight.width + 8
+
+        Image {
+            id: image_elevator_weight
+
+            fillMode: Image.PreserveAspectFit
+            height: parent.height
+            source: "qrc:/res/icons/elevator/weight.png"
+        }
+
+        Text {
+            id: text_elevator_weight
+
+            anchors {
+                left: image_elevator_weight.right
+                leftMargin: 8
+                verticalCenter: image_elevator_weight.verticalCenter
+            }
+            font.pixelSize: parent.height
+            text: "50%"
+        }
+    }
+
+    Item {
+        anchors {
+            left: button_elevator_floor.left
+            top: item_elevator_name.bottom
+            topMargin: 16
+        }
+        height: button_elevator_exit.height
+        width: parent.width - background_media.width - 48
+
+        Image {
+            id: image_elevator_nextstop
+
+            fillMode: Image.PreserveAspectFit
+            height: item_elevator_name.height
+            source: "qrc:/res/icons/elevator/stairs-up.png"
+        }
+
+        Text {
+            id: text_elevator_nextstop
+
+            anchors {
+                left: image_elevator_nextstop.right
+                leftMargin: 8
+                verticalCenter: image_elevator_nextstop.verticalCenter
+            }
+            font.pixelSize: image_elevator_nextstop.height
+            text: "1 … 3 … 5 … 7 … 10"
+        }
+
+        ProgressBar {
+            id: progressbar_elevator_nextstop
+
+            anchors {
+                top: image_elevator_nextstop.bottom
+                topMargin: 8
+            }
+            value: 0.5
+            width: parent.width
+        }
+    }
+
+    Button {
+        id: button_upstairs
+
+        anchors {
+            bottom: button_downstairs.top
+            bottomMargin: button_downstairs.anchors.bottomMargin
+            horizontalCenter: button_downstairs.horizontalCenter
+        }
+        height: button_downstairs.height
+        icon.source: "qrc:/res/icons/elevator/up.png"
+        text: "上楼"
+        width: button_downstairs.width
+    }
+
+    Button {
+        id: button_downstairs
+
+        anchors {
+            bottom: background_datetime.top
+            bottomMargin: height / 4
+            right: parent.right
+            rightMargin: 32
+        }
+        height: parent.height / 8
+        icon.source: "qrc:/res/icons/elevator/down.png"
+        text: "下楼"
+        width: parent.width - background_media.width - 80
     }
 
     Rectangle {

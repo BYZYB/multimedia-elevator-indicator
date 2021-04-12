@@ -15,17 +15,15 @@
 
 class Weather : public QObject {
 public:
-    Weather(QObject *parent = 0) : QObject(parent) {}
-    ~Weather() {}
-    Q_INVOKABLE inline QJsonValue get_weather_current() { return weather_current; }
-    Q_INVOKABLE inline QJsonArray get_weather_forecast() { return weather_forecast; }
+    Weather(QObject *parent = nullptr) : QObject(parent) {}
+    Q_INVOKABLE static inline QJsonValue get_weather_current() { return weather_current; }
+    Q_INVOKABLE static inline QJsonValue get_weather_forecast() { return weather_forecast; }
     Q_INVOKABLE QUrl get_weather_image(const bool &is_forecast, const qint32 &day = 0);
     Q_INVOKABLE void request_weather_data(const QString &city);
 
 private:
     Q_OBJECT
-    QJsonValue weather_current;
-    QJsonArray weather_forecast;
+    static QJsonValue weather_current, weather_forecast;
 
 signals:
     void weatherAvailable();

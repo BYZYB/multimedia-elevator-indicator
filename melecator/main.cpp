@@ -1,3 +1,4 @@
+#include "elevator.h"
 #include "media.h"
 #include "ncov.h"
 #include "notification.h"
@@ -15,6 +16,7 @@ int main(int argc, char *argv[]) {
     QQmlApplicationEngine engine;
 
     app.setFont(QFont("Noto Sans CJK SC"));
+    engine.rootContext()->setContextProperty("Elevator", new Elevator());
     engine.rootContext()->setContextProperty("Media", new Media(app.applicationDirPath()));
     engine.rootContext()->setContextProperty("Ncov", new Ncov());
     engine.rootContext()->setContextProperty("Notification", new Notification(app.applicationDirPath()));

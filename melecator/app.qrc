@@ -2,6 +2,19 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>res/icons/app_icon.ico</file>
+        <file>res/icons/elevator/building.png</file>
+        <file>res/icons/elevator/close.png</file>
+        <file>res/icons/elevator/down.png</file>
+        <file>res/icons/elevator/exit.png</file>
+        <file>res/icons/elevator/go-down.png</file>
+        <file>res/icons/elevator/go-up.png</file>
+        <file>res/icons/elevator/list.png</file>
+        <file>res/icons/elevator/open.png</file>
+        <file>res/icons/elevator/settings.png</file>
+        <file>res/icons/elevator/time-alert.png</file>
+        <file>res/icons/elevator/time.png</file>
+        <file>res/icons/elevator/up.png</file>
+        <file>res/icons/elevator/weight.png</file>
         <file>res/icons/player/next.png</file>
         <file>res/icons/player/previous.png</file>
         <file>res/icons/weather/clear-day.png</file>
@@ -18,7 +31,5 @@
         <file>res/icons/weather/storm.png</file>
         <file>res/icons/weather/unknown.png</file>
         <file>res/icons/weather/wind.png</file>
-        <file>res/icons/elevator/close-window.png</file>
-        <file>res/icons/elevator/settings.png</file>
     </qresource>
 </RCC>

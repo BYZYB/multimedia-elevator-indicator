@@ -4,6 +4,7 @@ CONFIG += \
     optimize_full
 
 HEADERS += \
+    elevator.h \
     media.h \
     ncov.h \
     notification.h \
@@ -14,6 +15,7 @@ QT += \
     quickcontrols2
 
 SOURCES += \
+    elevator.cpp \
     main.cpp \
     media.cpp \
     ncov.cpp \
@@ -22,7 +24,7 @@ SOURCES += \
 
 RESOURCES += app.qrc
 
-VERSION = 0.5.0
+VERSION = 0.6.0
 
 windows {
     RC_ICONS = res/icons/app_icon.ico

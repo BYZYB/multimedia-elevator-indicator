@@ -15,15 +15,14 @@
 
 class Media : public QObject {
 public:
-    Media(const QString &path, QObject *parent = 0) : QObject(parent), path(path + PATH_VIDEO) {}
-    ~Media() {}
-    Q_INVOKABLE inline QList<QUrl> get_media_url() { return media_url; }
+    Media(const QString &path, QObject *parent = nullptr) : QObject(parent), path(path + PATH_VIDEO) {}
+    Q_INVOKABLE static inline QList<QUrl> get_media_url() { return media_url; }
     Q_INVOKABLE void read_media_file();
 
 private:
     Q_OBJECT
-    QList<QUrl> media_url;
-    QString path;
+    static QList<QUrl> media_url;
+    const QString path;
 
 signals:
     void mediaAvailable();

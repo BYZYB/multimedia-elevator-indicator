@@ -1,10 +1,12 @@
 #include "weather.h"
 
+QJsonValue Weather::weather_current, Weather::weather_forecast;
+
 // Get the weather image URL by type (weather forecast or current weather) and day (default to today, not used in current weather)
 QUrl Weather::get_weather_image(const bool &is_forecast, const qint32 &day) {
     const int hour = QTime::currentTime().hour();
     const bool is_night = hour < 7 || hour > 18 ? true : false;
-    const QString phenomenon = is_forecast ? weather_forecast.at(day)[is_night ? "nightweather" : "dayweather"].toString() : weather_current["weather"].toString();
+    const QString phenomenon = is_forecast ? weather_forecast[day][is_night ? "nightweather" : "dayweather"].toString() : weather_current["weather"].toString();
 
     // Return suitable weather image according to phenomenon and time (day or night)
     if (phenomenon.contains("晴")) {
@@ -49,8 +51,8 @@ void Weather::request_weather_data(const QString &city) {
         qWarning() << "[E] Failed to get weather data for:" << city;
         emit weatherUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON documents
-        weather_current = QJsonDocument::fromJson(reply_current->readAll())["lives"].toArray().at(0);
-        weather_forecast = QJsonDocument::fromJson(reply_forecast->readAll())["forecasts"].toArray().at(0)["casts"].toArray();
+        weather_current = QJsonDocument::fromJson(reply_current->readAll())["lives"][0];
+        weather_forecast = QJsonDocument::fromJson(reply_forecast->readAll())["forecasts"][0]["casts"];
         emit weatherAvailable();
     }
 }

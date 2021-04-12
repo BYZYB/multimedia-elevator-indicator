@@ -1,5 +1,7 @@
 #include "media.h"
 
+QList<QUrl> Media::media_url;
+
 // Get the absolute path of each media file in a specific directory
 void Media::read_media_file() {
     const QStringList media_list = QDir(path).entryList({"*.avi", "*.mp4"}, QDir::Files, QDir::Name);
