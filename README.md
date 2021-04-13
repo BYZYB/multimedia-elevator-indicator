@@ -1,10 +1,10 @@
 # 电梯多媒体指示系统 - Melecator
 
-## 屏幕截图（v0.5.0）
+## 屏幕截图
 
-* Windows 电脑
-![image](https://user-images.githubusercontent.com/34391595/114176394-a85bb700-996d-11eb-80f8-7dd5940caf71.png)
-* 树莓派 4B
+* Windows 电脑（v0.6.0）
+![image](https://user-images.githubusercontent.com/34391595/114581922-b46baf80-9cb2-11eb-8dc0-80c879ed955c.png)
+* 树莓派 4B（v0.5.0）
 ![屏幕截图 2021-04-09 222000](https://user-images.githubusercontent.com/34391595/114197229-b537d500-9984-11eb-8083-72f3c1dc5d0f.png)
 
 ## 已实现功能
@@ -14,7 +14,7 @@
   * Linux Ubuntu 21.04 (arm64) 可使用 `GCC 10` 或 `Clang 12` 进行编译和运行
     * X11 窗口系统：正常运行（包括 XRDP 远程桌面连接）
     * Wayland 窗口系统：帧率较高但渲染异常（应该是 GPU 驱动对 Wayland 兼容性不佳的缘故）
-  * 支持自适应常见屏幕分辨率（建议宽高比接近 `16:9`，最小分辨率为 `1280×720`）和高 DPI 缩放（已测试 `100% ~ 200%`）
+  * 界面图片资源均为矢量（SVG）格式，支持自适应常见屏幕分辨率（建议宽高比接近 `16:9`，最小分辨率为 `1280×720`）和高 DPI 缩放
   * 对设备的 GPU 性能有一定需求，若性能较低且分辨率较高将导致显示帧率下降
 * 本地视频循环播放
   * 从指定路径搜索视频文件并进行随机播放

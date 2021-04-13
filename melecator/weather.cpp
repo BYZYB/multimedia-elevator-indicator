@@ -10,30 +10,32 @@ QUrl Weather::get_weather_image(const bool &is_forecast, const qint32 &day) {
 
     // Return suitable weather image according to phenomenon and time (day or night)
     if (phenomenon.contains("晴")) {
-        return is_night ? QUrl("qrc:/res/icons/weather/clear-night.png") : QUrl("qrc:/res/icons/weather/clear-day.png");
+        return is_night ? QUrl("qrc:/res/icons/weather/sunny-night.svg") : QUrl("qrc:/res/icons/weather/sunny-day.svg");
     } else if (phenomenon.contains("云")) {
-        return is_night ? QUrl("qrc:/res/icons/weather/cloudy-night.png") : QUrl("qrc:/res/icons/weather/cloudy-day.png");
+        return is_night ? QUrl("qrc:/res/icons/weather/partly-cloudy-night.svg") : QUrl("qrc:/res/icons/weather/partly-cloudy-day.svg");
     } else if (phenomenon.contains("阴")) {
-        return QUrl("qrc:/res/icons/weather/cloud.png");
+        return QUrl("qrc:/res/icons/weather/cloudy.svg");
     } else if (phenomenon.contains("风")) {
-        return QUrl("qrc:/res/icons/weather/wind.png");
+        return QUrl("qrc:/res/icons/weather/windy.svg");
     } else if (phenomenon.contains("霾") || phenomenon.contains("尘") || phenomenon.contains("沙")) {
-        return QUrl("qrc:/res/icons/weather/dust.png");
+        return QUrl("qrc:/res/icons/weather/hazy.svg");
     } else if (phenomenon.contains("雷")) {
-        return QUrl("qrc:/res/icons/weather/storm.png");
+        return QUrl("qrc:/res/icons/weather/lightning-rainy.svg");
+    } else if (phenomenon.contains("雪") && phenomenon.contains("雨")) {
+        return QUrl("qrc:/res/icons/weather/snowy-rainy.svg");
     } else if (phenomenon.contains("雪")) {
-        return QUrl("qrc:/res/icons/weather/snow.png");
+        return QUrl("qrc:/res/icons/weather/snowy.svg");
     } else if (phenomenon.contains("雨")) {
-        return QUrl("qrc:/res/icons/weather/rain.png");
+        return QUrl("qrc:/res/icons/weather/rainy.svg");
     } else if (phenomenon.contains("雾")) {
-        return is_night ? QUrl("qrc:/res/icons/weather/fog-night.png") : QUrl("qrc:/res/icons/weather/fog-day.png");
+        return QUrl("qrc:/res/icons/weather/foggy.svg");
     } else if (phenomenon.isEmpty()) { // Other weather phenomena
         qWarning() << "[E] Empty weather phenomena, the weather data might be broken.";
         emit weatherUnavailable();
-        return QUrl("qrc:/res/icons/weather/unknown.png");
+        return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
     } else {
         qWarning() << "[W] Unknown weather phenomena:" << phenomenon;
-        return QUrl("qrc:/res/icons/weather/unknown.png");
+        return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
     }
 }
 

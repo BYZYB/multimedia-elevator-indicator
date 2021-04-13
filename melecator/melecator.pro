@@ -12,7 +12,8 @@ HEADERS += \
 
 QT += \
     quick \
-    quickcontrols2
+    quickcontrols2 \
+    svg
 
 SOURCES += \
     elevator.cpp \
@@ -22,7 +23,8 @@ SOURCES += \
     notification.cpp \
     weather.cpp
 
-RESOURCES += app.qrc
+RESOURCES += \
+    app.qrc
 
 VERSION = 0.6.0
 

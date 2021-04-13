@@ -152,7 +152,7 @@ Window {
             image_weather_current_humidity.visible = image_weather_current_windpower.visible = false
             image_weather_current.source = image_weather_forecast_0.source
                     = image_weather_forecast_1.source = image_weather_forecast_2.source
-                    = image_weather_forecast_3.source = "qrc:/res/icons/weather/unknown.png"
+                    = image_weather_forecast_3.source = "qrc:/res/icons/weather/cloudy-alert.svg"
             text_weather_current_city.text = "无数据"
             text_weather_current_title.text = text_weather_current_realtime.text
                     = text_weather_current_humidity.text = text_weather_current_windpower.text = ""
@@ -236,7 +236,7 @@ Window {
                 verticalCenter: parent.verticalCenter
             }
             height: parent.height / 5
-            icon.source: "qrc:/res/icons/player/next.png"
+            icon.source: "qrc:/res/icons/player/next.svg"
             opacity: 0.5
             visible: false
             width: height * 2 / 3
@@ -260,7 +260,7 @@ Window {
                 verticalCenter: parent.verticalCenter
             }
             height: button_media_next.height
-            icon.source: "qrc:/res/icons/player/previous.png"
+            icon.source: "qrc:/res/icons/player/previous.svg"
             opacity: 0.5
             visible: false
             width: button_media_next.width
@@ -340,8 +340,10 @@ Window {
                                 horizontalCenter: parent.horizontalCenter
                                 top: parent.top
                             }
-                            fillMode: Image.PreserveAspectFit
-                            height: parent.height * 2 / 3
+                            sourceSize {
+                                height: parent.height * 2 / 3
+                                width: height
+                            }
                         }
 
                         Text {
@@ -403,9 +405,11 @@ Window {
                                 id: image_weather_current_humidity
 
                                 anchors.verticalCenter: parent.verticalCenter
-                                fillMode: Image.PreserveAspectFit
-                                height: parent.height * 2 / 3
-                                source: "qrc:/res/icons/weather/humidity.png"
+                                source: "qrc:/res/icons/weather/humidity.svg"
+                                sourceSize {
+                                    height: parent.height * 2 / 3
+                                    width: height
+                                }
                                 visible: false
                             }
 
@@ -434,9 +438,11 @@ Window {
                                 id: image_weather_current_windpower
 
                                 anchors.verticalCenter: parent.verticalCenter
-                                fillMode: Image.PreserveAspectFit
-                                height: image_weather_current_humidity.height
-                                source: "qrc:/res/icons/weather/wind.png"
+                                source: "qrc:/res/icons/weather/windsock.svg"
+                                sourceSize {
+                                    height: image_weather_current_humidity.height
+                                    width: height
+                                }
                                 visible: false
                             }
 
@@ -485,8 +491,10 @@ Window {
                             id: image_weather_forecast_0
 
                             anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            height: parent.height / 2.5
+                            sourceSize {
+                                height: parent.height / 2.5
+                                width: height
+                            }
                         }
 
                         Text {
@@ -524,8 +532,10 @@ Window {
                             id: image_weather_forecast_1
 
                             anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            height: image_weather_forecast_0.height
+                            sourceSize {
+                                height: image_weather_forecast_0.height
+                                width: height
+                            }
                         }
 
                         Text {
@@ -563,8 +573,10 @@ Window {
                             id: image_weather_forecast_2
 
                             anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            height: image_weather_forecast_0.height
+                            sourceSize {
+                                height: image_weather_forecast_0.height
+                                width: height
+                            }
                         }
 
                         Text {
@@ -602,8 +614,10 @@ Window {
                             id: image_weather_forecast_3
 
                             anchors.centerIn: parent
-                            fillMode: Image.PreserveAspectFit
-                            height: image_weather_forecast_0.height
+                            sourceSize {
+                                height: image_weather_forecast_0.height
+                                width: height
+                            }
                         }
 
                         Text {
@@ -1084,7 +1098,7 @@ Window {
         }
         flat: true
         height: button_elevator_exit.height
-        icon.source: "qrc:/res/icons/elevator/building.png"
+        icon.source: "qrc:/res/icons/elevator/building.svg"
         text: "第 6 层"
 
         ToolTip {
@@ -1101,7 +1115,7 @@ Window {
         anchors.right: button_elevator_exit.left
         flat: true
         height: button_elevator_exit.height
-        icon.source: "qrc:/res/icons/elevator/settings.png"
+        icon.source: "qrc:/res/icons/elevator/settings.svg"
 
         ToolTip {
             text: "设置"
@@ -1120,7 +1134,7 @@ Window {
         }
         flat: true
         height: parent.height / 12
-        icon.source: "qrc:/res/icons/elevator/exit.png"
+        icon.source: "qrc:/res/icons/elevator/exit.svg"
 
         ToolTip {
             text: "退出"
@@ -1159,9 +1173,11 @@ Window {
         Image {
             id: image_elevator_direction
 
-            fillMode: Image.PreserveAspectFit
-            height: parent.height
-            source: "qrc:/res/icons/elevator/go-up.png"
+            source: "qrc:/res/icons/elevator/move-up.svg"
+            sourceSize {
+                height: parent.height
+                width: height
+            }
         }
 
         Text {
@@ -1193,9 +1209,11 @@ Window {
         Image {
             id: image_elevator_name
 
-            fillMode: Image.PreserveAspectFit
-            height: parent.height
-            source: "qrc:/res/icons/elevator/list.png"
+            source: "qrc:/res/icons/elevator/elevator.svg"
+            sourceSize {
+                height: parent.height
+                width: height
+            }
         }
 
         Text {
@@ -1222,9 +1240,11 @@ Window {
         Image {
             id: image_elevator_time
 
-            fillMode: Image.PreserveAspectFit
-            height: parent.height
-            source: "qrc:/res/icons/elevator/time.png"
+            source: "qrc:/res/icons/elevator/clock.svg"
+            sourceSize {
+                height: parent.height
+                width: height
+            }
         }
 
         Text {
@@ -1251,9 +1271,11 @@ Window {
         Image {
             id: image_elevator_weight
 
-            fillMode: Image.PreserveAspectFit
-            height: parent.height
-            source: "qrc:/res/icons/elevator/weight.png"
+            source: "qrc:/res/icons/elevator/capacity.svg"
+            sourceSize {
+                height: parent.height
+                width: height
+            }
         }
 
         Text {
@@ -1281,9 +1303,11 @@ Window {
         Image {
             id: image_elevator_nextstop
 
-            fillMode: Image.PreserveAspectFit
-            height: item_elevator_name.height
-            source: "qrc:/res/icons/elevator/stairs-up.png"
+            source: "qrc:/res/icons/elevator/stairs-up.svg"
+            sourceSize {
+                height: item_elevator_name.height
+                width: height
+            }
         }
 
         Text {
@@ -1319,7 +1343,7 @@ Window {
             horizontalCenter: button_downstairs.horizontalCenter
         }
         height: button_downstairs.height
-        icon.source: "qrc:/res/icons/elevator/up.png"
+        icon.source: "qrc:/res/icons/elevator/arrow-up.svg"
         text: "上楼"
         width: button_downstairs.width
     }
@@ -1334,7 +1358,7 @@ Window {
             rightMargin: 32
         }
         height: parent.height / 8
-        icon.source: "qrc:/res/icons/elevator/down.png"
+        icon.source: "qrc:/res/icons/elevator/arrow-down.svg"
         text: "下楼"
         width: parent.width - background_media.width - 80
     }
