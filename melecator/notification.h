@@ -1,10 +1,14 @@
 #ifndef NOTIFICATION_H
 #define NOTIFICATION_H
 
-#include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QMap>
 #include <QObject>
+
+#ifndef QT_NO_DEBUG
+#include <QDebug>
+#endif
 
 #ifdef Q_OS_WIN
 #define PATH_NOTIFICATION "/../../test_data/notifications/"

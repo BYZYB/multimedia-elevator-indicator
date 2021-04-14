@@ -1,11 +1,14 @@
 #ifndef MEDIA_H
 #define MEDIA_H
 
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QObject>
 #include <QUrl>
+
+#ifndef QT_NO_DEBUG
+#include <QDebug>
+#endif
 
 #ifdef Q_OS_WIN
 #define PATH_VIDEO "/../../test_data/videos/"

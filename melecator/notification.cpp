@@ -9,7 +9,9 @@ QString Notification::get_notification(const bool &is_content, const qint32 &ind
         iterator += index;
         return is_content ? iterator.key() : iterator.value().trimmed();
     } else { // Notification index is out of range
+#ifndef QT_NO_DEBUG
         qWarning() << "[E] Notification index out of range: Index" << index << ", Type" << (is_content ? "content" : "title");
+#endif
         return "🔕 通知不存在";
     }
 }
@@ -36,9 +38,7 @@ void Notification::read_notification_file() {
         const QString full_path = path + *iterator;
         QFile file(full_path);
 
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { // Cannot open file in readonly mode
-            qWarning() << "[E] Failed to open notification file in readonly mode:" << full_path;
-        } else { // File opened successfully, save notification title (line 1) and content (line 2+) into list
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) { // File opened successfully, save notification title (line 1) and content (line 2+) into list
             QString content;
             const QString title = file.readLine().simplified();
 
@@ -49,6 +49,10 @@ void Notification::read_notification_file() {
 
             notification_data.insert(title, content);
             file.close();
+        } else { // Cannot open file in readonly mode
+#ifndef QT_NO_DEBUG
+            qWarning() << "[E] Failed to open notification file in readonly mode:" << full_path;
+#endif
         }
     }
 

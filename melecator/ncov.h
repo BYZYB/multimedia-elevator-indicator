@@ -1,7 +1,6 @@
 #ifndef NCOV_H
 #define NCOV_H
 
-#include <QDebug>
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -9,6 +8,10 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QObject>
+
+#ifndef QT_NO_DEBUG
+#include <QDebug>
+#endif
 
 #define URL_NCOV "https://lab.isaaclin.cn/nCoV/api/area?province="
 

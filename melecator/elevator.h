@@ -3,6 +3,10 @@
 
 #include <QObject>
 
+#ifndef QT_NO_DEBUG
+#include <QDebug>
+#endif
+
 class Elevator : public QObject {
 public:
     Elevator(QObject *parent = nullptr) : QObject(parent) {}

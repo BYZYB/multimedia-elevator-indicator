@@ -13,7 +13,9 @@ void Ncov::request_ncov_data(const QString &province) {
     loop.exec();
 
     if (reply->error()) { // Error happened during network request
+#ifndef QT_NO_DEBUG
         qWarning() << "[E] Failed to get infection data for:" << province;
+#endif
         emit ncovUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON document
         ncov_province = QJsonDocument::fromJson(reply->readAll())["results"][0];

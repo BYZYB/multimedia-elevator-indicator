@@ -30,11 +30,15 @@ QUrl Weather::get_weather_image(const bool &is_forecast, const qint32 &day) {
     } else if (phenomenon.contains("雾")) {
         return QUrl("qrc:/res/icons/weather/foggy.svg");
     } else if (phenomenon.isEmpty()) { // Other weather phenomena
+#ifndef QT_NO_DEBUG
         qWarning() << "[E] Empty weather phenomena, the weather data might be broken.";
+#endif
         emit weatherUnavailable();
         return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
     } else {
+#ifndef QT_NO_DEBUG
         qWarning() << "[W] Unknown weather phenomena:" << phenomenon;
+#endif
         return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
     }
 }
@@ -50,7 +54,9 @@ void Weather::request_weather_data(const QString &city) {
     loop.exec();
 
     if (reply_current->error() || reply_forecast->error()) { // Error happened during network request
+#ifndef QT_NO_DEBUG
         qWarning() << "[E] Failed to get weather data for:" << city;
+#endif
         emit weatherUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON documents
         weather_current = QJsonDocument::fromJson(reply_current->readAll())["lives"][0];
