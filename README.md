@@ -2,8 +2,8 @@
 
 ## 屏幕截图
 
-* Windows 电脑（v0.6.0）
-![image](https://user-images.githubusercontent.com/34391595/114581922-b46baf80-9cb2-11eb-8dc0-80c879ed955c.png)
+* Windows 电脑（v0.6.2）
+![image](https://user-images.githubusercontent.com/34391595/115052257-52a88100-9f10-11eb-8972-fff73a783aa2.png)
 * 树莓派 4B（v0.5.0）
 ![屏幕截图 2021-04-09 222000](https://user-images.githubusercontent.com/34391595/114197229-b537d500-9984-11eb-8083-72f3c1dc5d0f.png)
 

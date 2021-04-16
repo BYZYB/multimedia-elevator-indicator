@@ -1,13 +1,13 @@
 #include "ncov.h"
 
-QJsonValue Ncov::ncov_capital, Ncov::ncov_province;
+QJsonValue Ncov::capital_data, Ncov::province_data;
 
 // Request the COVID-19 infection data of a specific province using BlankerL nCoV API (in JSON format)
-void Ncov::request_ncov_data(const QString &province) {
+void Ncov::request_data(const QString &province) {
     QEventLoop loop;
     QNetworkAccessManager manager;
     const QNetworkRequest request(URL_NCOV + province);
-    QNetworkReply *reply = manager.get(request);
+    auto *reply = manager.get(request);
 
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
@@ -18,8 +18,8 @@ void Ncov::request_ncov_data(const QString &province) {
 #endif
         emit ncovUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON document
-        ncov_province = QJsonDocument::fromJson(reply->readAll())["results"][0];
-        ncov_capital = ncov_province["cities"][0];
+        province_data = QJsonDocument::fromJson(reply->readAll())["results"][0];
+        capital_data = province_data["cities"][0];
         emit ncovAvailable();
     }
 }

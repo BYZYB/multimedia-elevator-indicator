@@ -19,14 +19,16 @@
 class Notification : public QObject {
 public:
     Notification(const QString &path, QObject *parent = nullptr) : QObject(parent), path(path + PATH_NOTIFICATION) {}
-    Q_INVOKABLE QString get_notification(const bool &is_content, const qint32 &index);
-    Q_INVOKABLE static inline qint32 get_notification_amount() { return notification_data.size(); }
-    Q_INVOKABLE QString get_notification_merged();
-    Q_INVOKABLE void read_notification_file();
+    Q_INVOKABLE QString get_data(const bool &is_content, const qint32 &index);
+    Q_INVOKABLE static inline quint32 get_data_amount() { return data.size(); }
+    Q_INVOKABLE QString get_data_merged();
+
+public slots:
+    void read_file();
 
 private:
     Q_OBJECT
-    static QMap<QString, QString> notification_data;
+    static QMap<QString, QString> data;
     const QString path;
 
 signals:

@@ -19,12 +19,14 @@
 class Media : public QObject {
 public:
     Media(const QString &path, QObject *parent = nullptr) : QObject(parent), path(path + PATH_VIDEO) {}
-    Q_INVOKABLE static inline QList<QUrl> get_media_url() { return media_url; }
-    Q_INVOKABLE void read_media_file();
+    Q_INVOKABLE static inline QList<QUrl> get_url() { return url; }
+
+public slots:
+    void read_file();
 
 private:
     Q_OBJECT
-    static QList<QUrl> media_url;
+    static QList<QUrl> url;
     const QString path;
 
 signals:

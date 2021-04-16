@@ -2,7 +2,6 @@
 #define NCOV_H
 
 #include <QEventLoop>
-#include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -18,13 +17,15 @@
 class Ncov : public QObject {
 public:
     Ncov(QObject *parent = nullptr) : QObject(parent) {}
-    Q_INVOKABLE static inline QJsonValue get_ncov_capital() { return ncov_capital; }
-    Q_INVOKABLE static inline QJsonValue get_ncov_province() { return ncov_province; }
-    Q_INVOKABLE void request_ncov_data(const QString &province);
+    Q_INVOKABLE static inline QJsonValue get_capital_data() { return capital_data; }
+    Q_INVOKABLE static inline QJsonValue get_province_data() { return province_data; }
+
+public slots:
+    void request_data(const QString &province);
 
 private:
     Q_OBJECT
-    static QJsonValue ncov_capital, ncov_province;
+    static QJsonValue capital_data, province_data;
 
 signals:
     void ncovAvailable();

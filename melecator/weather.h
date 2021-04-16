@@ -2,7 +2,6 @@
 #define WEATHER_H
 
 #include <QEventLoop>
-#include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -19,14 +18,16 @@
 class Weather : public QObject {
 public:
     Weather(QObject *parent = nullptr) : QObject(parent) {}
-    Q_INVOKABLE static inline QJsonValue get_weather_current() { return weather_current; }
-    Q_INVOKABLE static inline QJsonValue get_weather_forecast() { return weather_forecast; }
-    Q_INVOKABLE QUrl get_weather_image(const bool &is_forecast, const qint32 &day = 0);
-    Q_INVOKABLE void request_weather_data(const QString &city);
+    Q_INVOKABLE static inline QJsonValue get_current_data() { return current_data; }
+    Q_INVOKABLE static inline QJsonValue get_forecast_data() { return forecast_data; }
+    Q_INVOKABLE QUrl get_image_url(const bool &is_forecast, const qint32 &day = 0);
+
+public slots:
+    void request_data(const QString &city);
 
 private:
     Q_OBJECT
-    static QJsonValue weather_current, weather_forecast;
+    static QJsonValue current_data, forecast_data;
 
 signals:
     void weatherAvailable();

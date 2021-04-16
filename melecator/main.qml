@@ -6,8 +6,27 @@ import QtQuick.Window 2.15
 Window {
     minimumHeight: 720
     minimumWidth: 1280
-    title: "电梯多媒体指示系统 - " + width + "×" + height
+    title: "Melecator - " + width + "×" + height
     visible: true
+
+    Connections {
+        target: Elevator
+
+        function onElevatorStart() {
+            var direction = Elevator.get_direction()
+            image_elevator_direction.source = direction
+                    > 0 ? direction === 1 ? "qrc:/res/icons/elevator/move-down.svg" : "qrc:/res/icons/elevator/move-up.svg" : "qrc:/res/icons/elevator/stop-left.svg"
+            image_elevator_next_stop.source = direction
+                    === 1 ? "qrc:/res/icons/elevator/stairs-down.svg" : "qrc:/res/icons/elevator/stairs-up.svg"
+            progressbar_elevator_next_stop.value = Elevator.get_progress()
+            text_elevator_capacity.text = Elevator.get_capacity() + "%"
+            text_elevator_direction.text = direction
+                    > 0 ? direction === 1 ? "正在下行" : "正在上行" : "左侧停靠"
+            text_elevator_floor.text = Elevator.get_floor()
+            text_elevator_next_stop.text = Elevator.get_next_stop()
+            text_elevator_remain_time.text = Elevator.get_remain_time() + " 秒"
+        }
+    }
 
     Connections {
         target: Media
@@ -15,7 +34,7 @@ Window {
         function onMediaAvailable() {
             button_media_previous.visible = button_media_next.visible = true
             text_media.visible = false
-            list_media.addItems(Media.get_media_url())
+            list_media.addItems(Media.get_url())
             video_media.play()
             indicator_media.running = false
         }
@@ -32,14 +51,14 @@ Window {
         target: Ncov
 
         function onNcovAvailable() {
-            var ncov_capital = Ncov.get_ncov_capital(
-                        ), ncov_capital_mid = ncov_capital["midDangerCount"], ncov_capital_high = ncov_capital["highDangerCount"], ncov_province = Ncov.get_ncov_province()
+            var ncov_capital = Ncov.get_capital_data(
+                        ), ncov_capital_mid = ncov_capital["midDangerCount"], ncov_capital_high = ncov_capital["highDangerCount"], ncov_province = Ncov.get_province_data()
             text_ncov_capital_0_title.visible = text_ncov_capital_1_title.visible
                     = text_ncov_capital_2_title.visible = text_ncov_capital_3_title.visible
                     = text_ncov_province_0_title.visible = text_ncov_province_1_title.visible
                     = text_ncov_province_2_title.visible = text_ncov_province_3_title.visible = true
             text_ncov_province_title.text = "新冠疫情数据 | " + ncov_province["provinceName"]
-            text_ncov_province_title_time.text = "⏰ 更新时间 | "
+            text_ncov_province_title_time.text = "🕓 更新时间 | "
                     + new Date(ncov_province["updateTime"]).toLocaleString(
                         Qt.locale(), "M月d日 HH:mm")
             text_ncov_province_0_number.text = ncov_province["currentConfirmedCount"]
@@ -79,7 +98,7 @@ Window {
         target: Notification
 
         function onNotificationAvailable() {
-            text_notification.text = Notification.get_notification_merged()
+            text_notification.text = Notification.get_data_merged()
         }
 
         function onNotificationUnavailable() {
@@ -113,15 +132,15 @@ Window {
         }
 
         function onWeatherAvailable() {
-            var weather_current = Weather.get_weather_current(
-                        ), weather_forecast = Weather.get_weather_forecast(
+            var weather_current = Weather.get_current_data(
+                        ), weather_forecast = Weather.get_forecast_data(
                                ), weather_forecast_0 = weather_forecast[0], weather_forecast_0_daytemp = weather_forecast_0["daytemp"], weather_forecast_0_nighttemp = weather_forecast_0["nighttemp"], weather_forecast_1 = weather_forecast[1], weather_forecast_2 = weather_forecast[2], weather_forecast_3 = weather_forecast[3]
             image_weather_current_humidity.visible = image_weather_current_windpower.visible = true
-            image_weather_current.source = Weather.get_weather_image(false)
-            image_weather_forecast_0.source = Weather.get_weather_image(true, 0)
-            image_weather_forecast_1.source = Weather.get_weather_image(true, 1)
-            image_weather_forecast_2.source = Weather.get_weather_image(true, 2)
-            image_weather_forecast_3.source = Weather.get_weather_image(true, 3)
+            image_weather_current.source = Weather.get_image_url(false)
+            image_weather_forecast_0.source = Weather.get_image_url(true, 0)
+            image_weather_forecast_1.source = Weather.get_image_url(true, 1)
+            image_weather_forecast_2.source = Weather.get_image_url(true, 2)
+            image_weather_forecast_3.source = Weather.get_image_url(true, 3)
             text_weather_current_city.text = weather_current["city"]
             text_weather_current_title.text = weather_current["weather"] + " | "
                     + weather_forecast_0_nighttemp + "°~" + weather_forecast_0_daytemp
@@ -157,7 +176,7 @@ Window {
             text_weather_current_title.text = text_weather_current_realtime.text
                     = text_weather_current_humidity.text = text_weather_current_windpower.text = ""
             text_weather_forecast_0_date.text = text_weather_forecast_1_date.text
-                    = text_weather_forecast_2_date.text = text_weather_forecast_3_date.text = "——"
+                    = text_weather_forecast_2_date.text = text_weather_forecast_3_date.text = "--"
             text_weather_forecast_0_temperature.text = text_weather_forecast_1_temperature.text
                     = text_weather_forecast_2_temperature.text
                     = text_weather_forecast_3_temperature.text = "--°/--°"
@@ -294,7 +313,7 @@ Window {
                 indicator_media.running = true
                 video_media.stop()
                 list_media.clear()
-                Media.read_media_file()
+                Media.read_file()
             }
         }
 
@@ -659,7 +678,7 @@ Window {
 
             onTriggered: {
                 indicator_weather.running = true
-                Weather.request_weather_data("广州市")
+                Weather.request_data("广州市")
             }
         }
 
@@ -1074,13 +1093,13 @@ Window {
         Timer {
             id: timer_ncov
 
-            interval: 3600000
+            interval: 21600000
             repeat: true
             triggeredOnStart: true
 
             onTriggered: {
                 indicator_ncov.running = true
-                Ncov.request_ncov_data("广东省")
+                Ncov.request_data("广东省")
             }
         }
 
@@ -1090,7 +1109,7 @@ Window {
     }
 
     Button {
-        id: button_elevator_floor
+        id: button_elevator_client_floor
 
         anchors {
             left: background_media.right
@@ -1099,13 +1118,17 @@ Window {
         flat: true
         height: button_elevator_exit.height
         icon.source: "qrc:/res/icons/elevator/building.svg"
-        text: "第 6 层"
+        text: "设置楼层"
 
         ToolTip {
             text: "楼层信息"
             timeout: 3000
-            visible: button_elevator_floor.hovered
-                     || button_elevator_floor.pressed
+            visible: button_elevator_client_floor.hovered
+                     || button_elevator_client_floor.pressed
+        }
+
+        onClicked: {
+            dialog_elevator_client_floor.open()
         }
     }
 
@@ -1122,6 +1145,10 @@ Window {
             timeout: 3000
             visible: button_elevator_setting.hovered
                      || button_elevator_setting.pressed
+        }
+
+        onClicked: {
+            dialog_elevator_setting.open()
         }
     }
 
@@ -1159,7 +1186,7 @@ Window {
             pixelSize: parent.height / 4
             weight: Font.Light
         }
-        text: "10"
+        text: "--"
     }
 
     Item {
@@ -1168,12 +1195,12 @@ Window {
             top: text_elevator_floor.top
         }
         height: text_elevator_floor.height / 6
-        width: image_elevator_direction.width + text_elevator_direction.width
+        width: image_elevator_direction.width + text_elevator_direction.width + 16
 
         Image {
             id: image_elevator_direction
 
-            source: "qrc:/res/icons/elevator/move-up.svg"
+            source: "qrc:/res/icons/elevator/link-off.svg"
             sourceSize {
                 height: parent.height
                 width: height
@@ -1190,9 +1217,9 @@ Window {
             }
             font {
                 pixelSize: parent.height
-                weight: Font.Medium
+                weight: Font.Bold
             }
-            text: "正在上行"
+            text: "未连接"
         }
     }
 
@@ -1200,7 +1227,7 @@ Window {
         id: item_elevator_name
 
         anchors {
-            left: button_elevator_floor.left
+            left: button_elevator_client_floor.left
             top: text_elevator_floor.bottom
         }
         height: button_elevator_exit.height / 2
@@ -1225,7 +1252,7 @@ Window {
                 verticalCenter: image_elevator_name.verticalCenter
             }
             font.pixelSize: parent.height
-            text: "客梯"
+            text: "--"
         }
     }
 
@@ -1235,10 +1262,10 @@ Window {
             verticalCenter: item_elevator_name.verticalCenter
         }
         height: item_elevator_name.height
-        width: image_elevator_time.width + text_elevator_time.width + 8
+        width: image_elevator_remain_time.width + text_elevator_remain_time.width + 8
 
         Image {
-            id: image_elevator_time
+            id: image_elevator_remain_time
 
             source: "qrc:/res/icons/elevator/clock.svg"
             sourceSize {
@@ -1248,15 +1275,15 @@ Window {
         }
 
         Text {
-            id: text_elevator_time
+            id: text_elevator_remain_time
 
             anchors {
-                left: image_elevator_time.right
+                left: image_elevator_remain_time.right
                 leftMargin: 8
-                verticalCenter: image_elevator_time.verticalCenter
+                verticalCenter: image_elevator_remain_time.verticalCenter
             }
             font.pixelSize: parent.height
-            text: "01:30"
+            text: "-- 秒"
         }
     }
 
@@ -1266,10 +1293,10 @@ Window {
             verticalCenter: item_elevator_name.verticalCenter
         }
         height: item_elevator_name.height
-        width: image_elevator_weight.width + text_elevator_weight.width + 8
+        width: image_elevator_capacity.width + text_elevator_capacity.width + 8
 
         Image {
-            id: image_elevator_weight
+            id: image_elevator_capacity
 
             source: "qrc:/res/icons/elevator/capacity.svg"
             sourceSize {
@@ -1279,21 +1306,21 @@ Window {
         }
 
         Text {
-            id: text_elevator_weight
+            id: text_elevator_capacity
 
             anchors {
-                left: image_elevator_weight.right
+                left: image_elevator_capacity.right
                 leftMargin: 8
-                verticalCenter: image_elevator_weight.verticalCenter
+                verticalCenter: image_elevator_capacity.verticalCenter
             }
             font.pixelSize: parent.height
-            text: "50%"
+            text: "--%"
         }
     }
 
     Item {
         anchors {
-            left: button_elevator_floor.left
+            left: button_elevator_client_floor.left
             top: item_elevator_name.bottom
             topMargin: 16
         }
@@ -1301,7 +1328,7 @@ Window {
         width: parent.width - background_media.width - 48
 
         Image {
-            id: image_elevator_nextstop
+            id: image_elevator_next_stop
 
             source: "qrc:/res/icons/elevator/stairs-up.svg"
             sourceSize {
@@ -1311,22 +1338,22 @@ Window {
         }
 
         Text {
-            id: text_elevator_nextstop
+            id: text_elevator_next_stop
 
             anchors {
-                left: image_elevator_nextstop.right
+                left: image_elevator_next_stop.right
                 leftMargin: 8
-                verticalCenter: image_elevator_nextstop.verticalCenter
+                verticalCenter: image_elevator_next_stop.verticalCenter
             }
-            font.pixelSize: image_elevator_nextstop.height
-            text: "1 … 3 … 5 … 7 … 10"
+            font.pixelSize: image_elevator_next_stop.height
+            text: "--"
         }
 
         ProgressBar {
-            id: progressbar_elevator_nextstop
+            id: progressbar_elevator_next_stop
 
             anchors {
-                top: image_elevator_nextstop.bottom
+                top: image_elevator_next_stop.bottom
                 topMargin: 8
             }
             value: 0.5
@@ -1339,13 +1366,17 @@ Window {
 
         anchors {
             bottom: button_downstairs.top
-            bottomMargin: button_downstairs.anchors.bottomMargin
+            bottomMargin: height / 4
             horizontalCenter: button_downstairs.horizontalCenter
         }
         height: button_downstairs.height
         icon.source: "qrc:/res/icons/elevator/arrow-up.svg"
         text: "上楼"
         width: button_downstairs.width
+
+        onClicked: {
+            Elevator.add_next_stop_up(spinbox_elevator_client_floor.value)
+        }
     }
 
     Button {
@@ -1353,7 +1384,7 @@ Window {
 
         anchors {
             bottom: background_datetime.top
-            bottomMargin: height / 4
+            bottomMargin: 16
             right: parent.right
             rightMargin: 32
         }
@@ -1361,6 +1392,10 @@ Window {
         icon.source: "qrc:/res/icons/elevator/arrow-down.svg"
         text: "下楼"
         width: parent.width - background_media.width - 80
+
+        onClicked: {
+            Elevator.add_next_stop_down(spinbox_elevator_client_floor.value)
+        }
     }
 
     Rectangle {
@@ -1439,17 +1474,81 @@ Window {
         Timer {
             id: timer_notification
 
-            interval: 1800000
+            interval: 3600000
             repeat: true
             triggeredOnStart: true
 
             onTriggered: {
-                Notification.read_notification_file()
+                Notification.read_file()
             }
         }
 
         Component.onCompleted: {
             timer_notification.start()
+        }
+    }
+
+    Dialog {
+        id: dialog_elevator_client_floor
+
+        anchors.centerIn: parent
+        focus: true
+        height: parent.height / 2
+        modal: true
+        standardButtons: Dialog.Cancel | Dialog.Ok
+        title: "⚙ 设备信息"
+        width: parent.width / 3
+
+        Column {
+            anchors.fill: parent
+            spacing: 16
+
+            Text {
+                font.weight: Font.Medium
+                text: "🏠 当前设备所在楼层"
+            }
+
+            SpinBox {
+                id: spinbox_elevator_client_floor
+
+                editable: true
+                from: 1
+                to: 12
+                width: parent.width
+            }
+
+            Text {
+                font.weight: Font.Medium
+                text: "🏷 自定义电梯名称"
+            }
+
+            TextField {
+                id: textfield_elevator_client_floor
+
+                text: "客梯"
+                width: parent.width
+            }
+        }
+
+        onAccepted: {
+            button_elevator_client_floor.text = "第 " + spinbox_elevator_client_floor.value + " 层"
+            text_elevator_name.text = textfield_elevator_client_floor.text
+        }
+    }
+
+    Dialog {
+        id: dialog_elevator_setting
+
+        anchors.centerIn: parent
+        focus: true
+        height: parent.height * 2 / 3
+        modal: true
+        standardButtons: dialog_elevator_client_floor.standardButtons
+        title: "⚙ 设置"
+        width: dialog_elevator_client_floor.width
+
+        onAccepted: {
+            Elevator.start(12, 6, 3, 3, 10)
         }
     }
 
@@ -1460,9 +1559,9 @@ Window {
         focus: true
         height: parent.height / 3
         modal: true
-        standardButtons: Dialog.Retry | Dialog.Cancel
+        standardButtons: Dialog.Cancel | Dialog.Retry
         title: "⚠ 错误"
-        width: parent.width / 3
+        width: dialog_elevator_client_floor.width
 
         Text {
             anchors.fill: parent
@@ -1488,7 +1587,7 @@ Window {
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
-        width: dialog_media.width
+        width: dialog_elevator_client_floor.width
 
         Text {
             anchors.fill: parent
@@ -1514,7 +1613,7 @@ Window {
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
-        width: dialog_media.width
+        width: dialog_elevator_client_floor.width
 
         Text {
             anchors.fill: parent
@@ -1540,7 +1639,7 @@ Window {
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
-        width: dialog_media.width
+        width: dialog_elevator_client_floor.width
 
         Text {
             anchors.fill: parent

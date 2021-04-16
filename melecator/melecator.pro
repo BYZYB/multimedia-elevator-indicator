@@ -1,7 +1,8 @@
 CONFIG += \
     c++latest \
     ltcg \
-    optimize_full
+    optimize_full \
+    qtquickcompiler
 
 HEADERS += \
     elevator.h \

@@ -1,11 +1,12 @@
 #include "notification.h"
 
-QMap<QString, QString> Notification::notification_data;
+QMap<QString, QString> Notification::data;
 
 // Get a notification by type (content or title) and index (notification number)
-QString Notification::get_notification(const bool &is_content, const qint32 &index) {
-    if (index >= 0 && index <= notification_data.size()) { // The notification index is acceptable
-        QMap<QString, QString>::const_iterator iterator = notification_data.constBegin();
+QString Notification::get_data(const bool &is_content, const qint32 &index) {
+    if (index >= 0 && index <= data.size()) { // The notification index is acceptable
+        auto iterator = data.constBegin();
+
         iterator += index;
         return is_content ? iterator.key() : iterator.value().trimmed();
     } else { // Notification index is out of range
@@ -16,12 +17,12 @@ QString Notification::get_notification(const bool &is_content, const qint32 &ind
     }
 }
 
-// Get all notifications that merged into a single string (including title and content)
-QString Notification::get_notification_merged() {
+// Get all notifications that merged into one string (including title and content)
+QString Notification::get_data_merged() {
     QString notification_merged;
 
-    // Merge all notifications into a QString, including both title and content
-    for (QMap<QString, QString>::const_iterator iterator = notification_data.constBegin(); iterator != notification_data.constEnd(); iterator++) {
+    // Merge all notifications one by one
+    for (auto iterator = data.constBegin(); iterator != data.constEnd(); ++iterator) {
         notification_merged.append("🔔 【" + iterator.key() + "】");
         notification_merged.append(iterator.value().simplified() + "\t");
     }
@@ -30,12 +31,12 @@ QString Notification::get_notification_merged() {
 }
 
 // Read all notification files (*.txt) in a specific directory
-void Notification::read_notification_file() {
-    const QStringList list = QDir(path).entryList({"*.txt"}, QDir::Files, QDir::Name);
+void Notification::read_file() {
+    const auto list = QDir(path).entryList({"*.txt"}, QDir::Files, QDir::Name);
 
     // Read all files in this directory
-    for (QList<QString>::const_iterator iterator = list.constBegin(); iterator != list.constEnd(); iterator++) {
-        const QString full_path = path + *iterator;
+    for (auto iterator = list.constBegin(); iterator != list.constEnd(); ++iterator) {
+        const auto full_path = path + *iterator;
         QFile file(full_path);
 
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) { // File opened successfully, save notification title (line 1) and content (line 2+) into list
@@ -47,7 +48,7 @@ void Notification::read_notification_file() {
                 content.append(file.readLine());
             }
 
-            notification_data.insert(title, content);
+            data.insert(title, content);
             file.close();
         } else { // Cannot open file in readonly mode
 #ifndef QT_NO_DEBUG
@@ -56,5 +57,5 @@ void Notification::read_notification_file() {
         }
     }
 
-    notification_data.empty() ? emit notificationUnavailable() : emit notificationAvailable();
+    data.empty() ? emit notificationUnavailable() : emit notificationAvailable();
 }

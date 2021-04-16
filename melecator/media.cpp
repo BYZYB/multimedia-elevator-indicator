@@ -1,19 +1,19 @@
 #include "media.h"
 
-QList<QUrl> Media::media_url;
+QList<QUrl> Media::url;
 
 // Get the absolute path of each media file in a specific directory
-void Media::read_media_file() {
-    const QStringList list = QDir(path).entryList({"*.avi", "*.mp4"}, QDir::Files, QDir::Name);
+void Media::read_file() {
+    const auto list = QDir(path).entryList({"*.avi", "*.mp4"}, QDir::Files, QDir::Name);
 
     // Read all media files in this directory
-    for (QList<QString>::const_iterator iterator = list.constBegin(); iterator != list.constEnd(); iterator++) {
-        const QString full_path = path + *iterator;
+    for (auto iterator = list.constBegin(); iterator != list.constEnd(); ++iterator) {
+        const auto full_path = path + *iterator;
         QFile file(full_path);
 
         if (file.open(QIODevice::ReadOnly)) { // File opened successfully, save media file path into list (add "file://" prefix on linux system when GStreamer is used)
 #ifdef Q_OS_WIN
-            media_url.append(full_path);
+            url.append(full_path);
 #else
             media_url.append("file://" + full_path);
 #endif
@@ -25,5 +25,5 @@ void Media::read_media_file() {
         }
     }
 
-    media_url.empty() ? emit mediaUnavailable() : emit mediaAvailable();
+    url.empty() ? emit mediaUnavailable() : emit mediaAvailable();
 }

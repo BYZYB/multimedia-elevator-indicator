@@ -1,12 +1,12 @@
 #include "weather.h"
 
-QJsonValue Weather::weather_current, Weather::weather_forecast;
+QJsonValue Weather::current_data, Weather::forecast_data;
 
 // Get the weather image URL by type (weather forecast or current weather) and day (default to today, not used in current weather)
-QUrl Weather::get_weather_image(const bool &is_forecast, const qint32 &day) {
-    const int hour = QTime::currentTime().hour();
-    const bool is_night = hour < 7 || hour > 18 ? true : false;
-    const QString phenomenon = is_forecast ? weather_forecast[day][is_night ? "nightweather" : "dayweather"].toString() : weather_current["weather"].toString();
+QUrl Weather::get_image_url(const bool &is_forecast, const qint32 &day) {
+    const auto hour = QTime::currentTime().hour();
+    const auto is_night = hour < 7 || hour > 18 ? true : false;
+    const auto phenomenon = is_forecast ? forecast_data[day][is_night ? "nightweather" : "dayweather"].toString() : current_data["weather"].toString();
 
     // Return suitable weather image according to phenomenon and time (day or night)
     if (phenomenon.contains("晴")) {
@@ -29,26 +29,26 @@ QUrl Weather::get_weather_image(const bool &is_forecast, const qint32 &day) {
         return QUrl("qrc:/res/icons/weather/rainy.svg");
     } else if (phenomenon.contains("雾")) {
         return QUrl("qrc:/res/icons/weather/foggy.svg");
-    } else if (phenomenon.isEmpty()) { // Other weather phenomena
+    } else if (phenomenon.isEmpty()) { // The weather phenomenon string is empty
 #ifndef QT_NO_DEBUG
-        qWarning() << "[E] Empty weather phenomena, the weather data might be broken.";
+        qWarning() << "[E] Empty weather phenomenon, the weather data might be broken.";
 #endif
         emit weatherUnavailable();
         return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
-    } else {
+    } else { // Other weather phenomenon
 #ifndef QT_NO_DEBUG
-        qWarning() << "[W] Unknown weather phenomena:" << phenomenon;
+        qWarning() << "[W] Unknown weather phenomenon:" << phenomenon;
 #endif
         return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
     }
 }
 
 // Request the weather data of a specific city using AMAP weather API (in JSON format)
-void Weather::request_weather_data(const QString &city) {
+void Weather::request_data(const QString &city) {
     QEventLoop loop;
     QNetworkAccessManager manager;
     const QNetworkRequest request_current(URL_WEATHER_CURRENT + city), request_forecast(URL_WEATHER_FORECAST + city);
-    QNetworkReply *reply_current = manager.get(request_current), *reply_forecast = manager.get(request_forecast);
+    auto *reply_current = manager.get(request_current), *reply_forecast = manager.get(request_forecast);
 
     connect(reply_forecast, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
@@ -59,8 +59,8 @@ void Weather::request_weather_data(const QString &city) {
 #endif
         emit weatherUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON documents
-        weather_current = QJsonDocument::fromJson(reply_current->readAll())["lives"][0];
-        weather_forecast = QJsonDocument::fromJson(reply_forecast->readAll())["forecasts"][0]["casts"];
+        current_data = QJsonDocument::fromJson(reply_current->readAll())["lives"][0];
+        forecast_data = QJsonDocument::fromJson(reply_forecast->readAll())["forecasts"][0]["casts"];
         emit weatherAvailable();
     }
 }

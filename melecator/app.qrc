@@ -12,11 +12,14 @@
         <file>res/icons/elevator/clock.svg</file>
         <file>res/icons/elevator/elevator.svg</file>
         <file>res/icons/elevator/exit.svg</file>
+        <file>res/icons/elevator/link-off.svg</file>
         <file>res/icons/elevator/move-down.svg</file>
         <file>res/icons/elevator/move-up.svg</file>
         <file>res/icons/elevator/settings.svg</file>
         <file>res/icons/elevator/stairs-down.svg</file>
         <file>res/icons/elevator/stairs-up.svg</file>
+        <file>res/icons/elevator/stop-left.svg</file>
+        <file>res/icons/elevator/stop-right.svg</file>
         <file>res/icons/player/next.svg</file>
         <file>res/icons/player/previous.svg</file>
         <file>res/icons/weather/cloudy-alert.svg</file>
