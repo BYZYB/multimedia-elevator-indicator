@@ -1,41 +1,42 @@
 # This file is used to ignore files which are generated
 # ----------------------------------------------------------------------------
 
-*~
-*.autosave
+!core/
+.#*
+.directory
+.DS_Store
+*_pch.h.cpp
+*_resource.rc
+*.*#
 *.a
+*.app
+*.autosave
+*.cache
 *.core
+*.debug
 *.moc
 *.o
 *.obj
 *.orig
+*.prl
+*.qm
+*.rc
 *.rej
+*.res
 *.so
 *.so.*
-*_pch.h.cpp
-*_resource.rc
-*.qm
-.#*
-*.*#
-core
-!core/
-tags
-.DS_Store
-.directory
-*.debug
-Makefile*
-*.prl
-*.app
-moc_*.cpp
-ui_*.h
-qrc_*.cpp
-Thumbs.db
-*.res
-*.rc
-*.cache
 *.stash
+*~
+app_qmlcache.qrc
 build-*/
+core
+Makefile*
+moc_*.cpp
+qrc_*.cpp
+tags
 test_*/
+Thumbs.db
+ui_*.h
 
 # qtcreator generated files
 *.pro.user*
@@ -50,15 +51,15 @@ test_*/
 *.ib_pdb_index
 *.idb
 *.ilk
+*.ncb
+*.opensdf
 *.pdb
+*.sdf
 *.sln
 *.suo
 *.vcproj
-*vcproj.*.*.user
-*.ncb
-*.sdf
-*.opensdf
 *.vcxproj
+*vcproj.*.*.user
 *vcxproj.*
 
 # MinGW generated files

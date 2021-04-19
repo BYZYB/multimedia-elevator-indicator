@@ -15,7 +15,7 @@ build() {
     "clean")
         echo "[I] Cleaning output and temporary files..."
         make clean
-        rm -f ./.qmake.stash ./melecator ./Makefile
+        rm -f ./.qmake.stash ./app_qmlcache.qrc ./Makefile ./melecator
         ;;
     *)
         echo "[E] Unknown parameter \"$1\", please choose between \"build\" or \"clean\"."

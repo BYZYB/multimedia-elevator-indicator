@@ -1,30 +1,118 @@
 import QtMultimedia 5.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
 
 Window {
+    id: window_0
+
+    property string city: "广州市"
+    property int client_floor: 1
+    property string client_name: "客梯"
+    property int floor_max: 12
+    property int floor_min: 1
+    property string path_media: path_media_default
+    property string path_media_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/videos/" : "/../test_data/videos/")
+    property string path_notification: path_notification_default
+    property string path_notification_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/notifications/" : "/../test_data/notifications/")
+    property int notification_speed: 60000
+    property int playback_mode: 1
+    property string province: "广东省"
+    property int side: 0
+    property int time_door_move: 3
+    property int time_next_floor: 3
+    property int time_stop: 5
+    property string url_ncov: url_ncov_default
+    property string url_ncov_default: "https://lab.isaaclin.cn/nCoV/api/area?province="
+    property string url_weather_current: url_weather_current_default
+    property string url_weather_current_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&city="
+    property string url_weather_forecast: url_weather_forecast_default
+    property string url_weather_forecast_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&extensions=all&city="
+
     minimumHeight: 720
     minimumWidth: 1280
-    title: "Melecator - " + width + "×" + height
+    title: "Melecator"
     visible: true
 
     Connections {
         target: Elevator
 
-        function onElevatorStart() {
-            var direction = Elevator.get_direction()
-            image_elevator_direction.source = direction
-                    > 0 ? direction === 1 ? "qrc:/res/icons/elevator/move-down.svg" : "qrc:/res/icons/elevator/move-up.svg" : "qrc:/res/icons/elevator/stop-left.svg"
-            image_elevator_next_stop.source = direction
-                    === 1 ? "qrc:/res/icons/elevator/stairs-down.svg" : "qrc:/res/icons/elevator/stairs-up.svg"
-            progressbar_elevator_next_stop.value = Elevator.get_progress()
+        function onElevatorDirectionUpdate() {
+            switch (Elevator.get_direction_current()) {
+            case 0:
+                image_elevator_direction.source = side === 0 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
+                text_elevator_direction.text = side === 0 ? "左侧停靠" : "右侧停靠"
+                break
+            case 1:
+                image_elevator_direction.source = "qrc:/res/icons/elevator/move-down.svg"
+                text_elevator_direction.text = "正在下行"
+                break
+            case 2:
+                image_elevator_direction.source = "qrc:/res/icons/elevator/move-up.svg"
+                text_elevator_direction.text = "正在上行"
+                break
+            }
+        }
+
+        function onElevatorDoorClose() {
+            if (client_floor === Elevator.get_floor()) {
+                if (Elevator.get_direction_planned() === 1) {
+                    button_downstairs.enabled = true
+                } else {
+                    button_upstairs.enabled = true
+                }
+            }
+
+            image_elevator_direction.source = "qrc:/res/icons/elevator/arrow-collapse.svg"
             text_elevator_capacity.text = Elevator.get_capacity() + "%"
-            text_elevator_direction.text = direction
-                    > 0 ? direction === 1 ? "正在下行" : "正在上行" : "左侧停靠"
+            text_elevator_direction.text = "关门请注意"
+        }
+
+        function onElevatorDoorOpen() {
+            if (client_floor === Elevator.get_floor()) {
+                if (Elevator.get_direction_planned() === 1) {
+                    button_downstairs.enabled = button_downstairs.highlighted = false
+                } else {
+                    button_upstairs.enabled = button_upstairs.highlighted = false
+                }
+            }
+
+            image_elevator_direction.source = "qrc:/res/icons/elevator/arrow-expand.svg"
+            text_elevator_capacity.text = Elevator.get_capacity() + "%"
+            text_elevator_direction.text = "开门请注意"
+        }
+
+        function onElevatorFloorUpdate() {
             text_elevator_floor.text = Elevator.get_floor()
-            text_elevator_next_stop.text = Elevator.get_next_stop()
-            text_elevator_remain_time.text = Elevator.get_remain_time() + " 秒"
+        }
+
+        function onElevatorNextStopUpdate() {
+            if (Elevator.get_direction_planned() === 1) {
+                image_elevator_next_stop.source = "qrc:/res/icons/elevator/stairs-down.svg"
+                text_elevator_next_stop.text = Elevator.get_next_stop_down()
+            } else {
+                image_elevator_next_stop.source = "qrc:/res/icons/elevator/stairs-up.svg"
+                text_elevator_next_stop.text = Elevator.get_next_stop_up()
+            }
+        }
+
+        function onElevatorTimeRemainUpdate() {
+            text_elevator_time_remain.text = Elevator.get_time_remain() + " 秒"
+            progressbar_elevator_next_stop.value = Elevator.get_progress()
+        }
+
+        function onElevatorStart() {
+            button_downstairs.enabled = client_floor === floor_min ? false : true
+            button_downstairs.highlighted = button_upstairs.highlighted = false
+            button_elevator_client_floor.enabled = true
+            button_upstairs.enabled = client_floor === floor_max ? false : true
+            client_floor = spinbox_elevator_client_floor.value
+            image_elevator_direction.source = side === 0 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
+            text_elevator_capacity.text = "0%"
+            text_elevator_direction.text = side === 0 ? "左侧停靠" : "右侧停靠"
+            text_elevator_floor.text = floor_min
+            text_elevator_time_remain.text = "0 秒"
         }
     }
 
@@ -53,27 +141,27 @@ Window {
         function onNcovAvailable() {
             var ncov_capital = Ncov.get_capital_data(
                         ), ncov_capital_mid = ncov_capital["midDangerCount"], ncov_capital_high = ncov_capital["highDangerCount"], ncov_province = Ncov.get_province_data()
-            text_ncov_capital_0_title.visible = text_ncov_capital_1_title.visible
-                    = text_ncov_capital_2_title.visible = text_ncov_capital_3_title.visible
-                    = text_ncov_province_0_title.visible = text_ncov_province_1_title.visible
-                    = text_ncov_province_2_title.visible = text_ncov_province_3_title.visible = true
-            text_ncov_province_title.text = "新冠疫情数据 | " + ncov_province["provinceName"]
-            text_ncov_province_title_time.text = "🕓 更新时间 | "
-                    + new Date(ncov_province["updateTime"]).toLocaleString(
-                        Qt.locale(), "M月d日 HH:mm")
-            text_ncov_province_0_number.text = ncov_province["currentConfirmedCount"]
-            text_ncov_province_1_number.text = ncov_province["suspectedCount"]
-            text_ncov_province_2_number.text = ncov_province["curedCount"]
-            text_ncov_province_3_number.text = ncov_province["deadCount"]
-            text_ncov_capital_title.text = text_ncov_province_title.text + " > "
-                    + ncov_capital["cityName"]
-            text_ncov_capital_title_risk.text = "📊 防控状况 | "
-                    + (ncov_capital_high > 0 ? ncov_capital_high + " 个高风险地区" : ncov_capital_mid
-                                               > 0 ? ncov_capital_mid + " 个中风险地区" : "低风险")
             text_ncov_capital_0_number.text = ncov_capital["currentConfirmedCount"]
             text_ncov_capital_1_number.text = ncov_capital["suspectedCount"]
             text_ncov_capital_2_number.text = ncov_capital["curedCount"]
             text_ncov_capital_3_number.text = ncov_capital["deadCount"]
+            text_ncov_capital_0_title.visible = text_ncov_capital_1_title.visible
+                    = text_ncov_capital_2_title.visible = text_ncov_capital_3_title.visible
+                    = text_ncov_province_0_title.visible = text_ncov_province_1_title.visible
+                    = text_ncov_province_2_title.visible = text_ncov_province_3_title.visible = true
+            text_ncov_capital_title_risk.text = "📊 防控状况 | "
+                    + (ncov_capital_high > 0 ? ncov_capital_high + " 个高风险地区" : ncov_capital_mid
+                                               > 0 ? ncov_capital_mid + " 个中风险地区" : "低风险")
+            text_ncov_province_0_number.text = ncov_province["currentConfirmedCount"]
+            text_ncov_province_1_number.text = ncov_province["suspectedCount"]
+            text_ncov_province_2_number.text = ncov_province["curedCount"]
+            text_ncov_province_3_number.text = ncov_province["deadCount"]
+            text_ncov_province_title.text = "新冠疫情数据 | " + ncov_province["provinceName"]
+            text_ncov_province_title_time.text = "🕓 更新时间 | "
+                    + new Date(ncov_province["updateTime"]).toLocaleString(
+                        Qt.locale(), "M月d日 HH:mm")
+            text_ncov_capital_title.text = text_ncov_province_title.text + " > "
+                    + ncov_capital["cityName"]
             indicator_ncov.running = false
         }
 
@@ -110,68 +198,47 @@ Window {
     Connections {
         target: Weather
 
-        function get_day_name(day) {
-            switch (day) {
-            case "1":
-                return "星期一"
-            case "2":
-                return "星期二"
-            case "3":
-                return "星期三"
-            case "4":
-                return "星期四"
-            case "5":
-                return "星期五"
-            case "6":
-                return "星期六"
-            case "7":
-                return "星期日"
-            default:
-                return "——"
-            }
-        }
-
         function onWeatherAvailable() {
             var weather_current = Weather.get_current_data(
                         ), weather_forecast = Weather.get_forecast_data(
                                ), weather_forecast_0 = weather_forecast[0], weather_forecast_0_daytemp = weather_forecast_0["daytemp"], weather_forecast_0_nighttemp = weather_forecast_0["nighttemp"], weather_forecast_1 = weather_forecast[1], weather_forecast_2 = weather_forecast[2], weather_forecast_3 = weather_forecast[3]
-            image_weather_current_humidity.visible = image_weather_current_windpower.visible = true
             image_weather_current.source = Weather.get_image_url(false)
+            image_weather_current_humidity.visible = image_weather_current_windpower.visible = true
             image_weather_forecast_0.source = Weather.get_image_url(true, 0)
             image_weather_forecast_1.source = Weather.get_image_url(true, 1)
             image_weather_forecast_2.source = Weather.get_image_url(true, 2)
             image_weather_forecast_3.source = Weather.get_image_url(true, 3)
             text_weather_current_city.text = weather_current["city"]
+            text_weather_current_humidity.text = weather_current["humidity"] + "%"
+            text_weather_current_realtime.text = weather_current["temperature"]
             text_weather_current_title.text = weather_current["weather"] + " | "
                     + weather_forecast_0_nighttemp + "°~" + weather_forecast_0_daytemp
                     + "° | " + weather_current["winddirection"]
-            text_weather_current_realtime.text = weather_current["temperature"]
-            text_weather_current_humidity.text = weather_current["humidity"] + "%"
             text_weather_current_windpower.text = weather_current["windpower"] + " 级"
-            text_weather_forecast_0_date.text = get_day_name(
+            text_weather_forecast_0_date.text = Weather.get_day_name(
                         weather_forecast_0["week"])
-            text_weather_forecast_1_date.text = get_day_name(
-                        weather_forecast_1["week"])
-            text_weather_forecast_2_date.text = get_day_name(
-                        weather_forecast_2["week"])
-            text_weather_forecast_3_date.text = get_day_name(
-                        weather_forecast_3["week"])
             text_weather_forecast_0_temperature.text = weather_forecast_0_nighttemp
                     + "°~" + weather_forecast_0_daytemp + "°"
+            text_weather_forecast_1_date.text = Weather.get_day_name(
+                        weather_forecast_1["week"])
             text_weather_forecast_1_temperature.text = weather_forecast_1["nighttemp"]
                     + "°~" + weather_forecast_1["daytemp"] + "°"
+            text_weather_forecast_2_date.text = Weather.get_day_name(
+                        weather_forecast_2["week"])
             text_weather_forecast_2_temperature.text = weather_forecast_2["nighttemp"]
                     + "°~" + weather_forecast_2["daytemp"] + "°"
+            text_weather_forecast_3_date.text = Weather.get_day_name(
+                        weather_forecast_3["week"])
             text_weather_forecast_3_temperature.text = weather_forecast_3["nighttemp"]
                     + "°~" + weather_forecast_3["daytemp"] + "°"
             indicator_weather.running = false
         }
 
         function onWeatherUnavailable() {
-            image_weather_current_humidity.visible = image_weather_current_windpower.visible = false
             image_weather_current.source = image_weather_forecast_0.source
                     = image_weather_forecast_1.source = image_weather_forecast_2.source
                     = image_weather_forecast_3.source = "qrc:/res/icons/weather/cloudy-alert.svg"
+            image_weather_current_humidity.visible = image_weather_current_windpower.visible = false
             text_weather_current_city.text = "无数据"
             text_weather_current_title.text = text_weather_current_realtime.text
                     = text_weather_current_humidity.text = text_weather_current_windpower.text = ""
@@ -207,7 +274,7 @@ Window {
             playlist: Playlist {
                 id: list_media
 
-                playbackMode: Playlist.Random
+                playbackMode: playback_mode === 1 ? Playlist.Random : Playlist.Loop
 
                 onCurrentIndexChanged: {
                     animation_video_media.start()
@@ -313,7 +380,7 @@ Window {
                 indicator_media.running = true
                 video_media.stop()
                 list_media.clear()
-                Media.read_file()
+                Media.read_file(path_media)
             }
         }
 
@@ -341,314 +408,306 @@ Window {
             anchors.fill: parent
             clip: true
 
-            Item {
-                Row {
-                    anchors.fill: parent
+            Row {
+                Item {
+                    id: item_weather_current_left
 
-                    Item {
-                        id: item_weather_current_left
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: parent.height - 32
+                    width: parent.width / 3
 
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: parent.height - 32
-                        width: parent.width / 3
+                    Image {
+                        id: image_weather_current
 
-                        Image {
-                            id: image_weather_current
-
-                            anchors {
-                                horizontalCenter: parent.horizontalCenter
-                                top: parent.top
-                            }
-                            sourceSize {
-                                height: parent.height * 2 / 3
-                                width: height
-                            }
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: parent.top
                         }
+                        sourceSize {
+                            height: parent.height * 2 / 3
+                            width: height
+                        }
+                    }
 
-                        Text {
-                            id: text_weather_current_city
+                    Text {
+                        id: text_weather_current_city
 
-                            anchors {
-                                bottom: parent.bottom
-                                horizontalCenter: parent.horizontalCenter
-                            }
-                            color: "#ffffff"
-                            font {
-                                pixelSize: image_weather_current.height / 3
-                                weight: Font.Bold
-                            }
+                        anchors {
+                            bottom: parent.bottom
+                            horizontalCenter: parent.horizontalCenter
+                        }
+                        color: "#ffffff"
+                        font {
+                            pixelSize: image_weather_current.height / 3
+                            weight: Font.Bold
+                        }
+                    }
+                }
+
+                Item {
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: item_weather_current_left.height
+                    width: parent.width - item_weather_current_left.width
+
+                    Text {
+                        id: text_weather_current_title
+
+                        color: "#ffffff"
+                        font {
+                            pixelSize: text_weather_current_city.font.pixelSize
+                            weight: Font.Bold
+                        }
+                    }
+
+                    Text {
+                        id: text_weather_current_realtime
+
+                        anchors {
+                            bottom: parent.bottom
+                            bottomMargin: -parent.height / 9
+                        }
+                        color: "#ffffff"
+                        font {
+                            pixelSize: image_weather_current.height
+                            weight: Font.Light
                         }
                     }
 
                     Item {
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: item_weather_current_left.height
-                        width: parent.width - item_weather_current_left.width
+                        id: item_weather_current_humidity
 
-                        Text {
-                            id: text_weather_current_title
+                        anchors {
+                            left: text_weather_current_realtime.right
+                            leftMargin: parent.width / 9
+                            top: text_weather_current_title.bottom
+                        }
+                        height: (parent.height - text_weather_current_title.height) / 2
+                        width: parent.width - text_weather_current_realtime.width
 
-                            color: "#ffffff"
-                            font {
-                                pixelSize: text_weather_current_city.font.pixelSize
-                                weight: Font.Bold
+                        Image {
+                            id: image_weather_current_humidity
+
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: "qrc:/res/icons/weather/humidity.svg"
+                            sourceSize {
+                                height: parent.height * 2 / 3
+                                width: height
                             }
+                            visible: false
                         }
 
                         Text {
-                            id: text_weather_current_realtime
+                            id: text_weather_current_humidity
 
                             anchors {
-                                bottom: parent.bottom
-                                bottomMargin: -parent.height / 9
+                                left: image_weather_current_humidity.right
+                                leftMargin: 8
+                                verticalCenter: image_weather_current_humidity.verticalCenter
                             }
                             color: "#ffffff"
-                            font {
-                                pixelSize: image_weather_current.height
-                                weight: Font.Light
+                            font.pixelSize: image_weather_current_humidity.height
+                        }
+                    }
+
+                    Item {
+                        anchors {
+                            left: item_weather_current_humidity.left
+                            top: item_weather_current_humidity.bottom
+                        }
+                        height: item_weather_current_humidity.height
+                        width: item_weather_current_humidity.width
+
+                        Image {
+                            id: image_weather_current_windpower
+
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: "qrc:/res/icons/weather/windsock.svg"
+                            sourceSize {
+                                height: image_weather_current_humidity.height
+                                width: height
                             }
+                            visible: false
                         }
 
-                        Item {
-                            id: item_weather_current_humidity
+                        Text {
+                            id: text_weather_current_windpower
 
                             anchors {
-                                left: text_weather_current_realtime.right
-                                leftMargin: parent.width / 9
-                                top: text_weather_current_title.bottom
+                                left: image_weather_current_windpower.right
+                                leftMargin: 8
+                                verticalCenter: image_weather_current_windpower.verticalCenter
                             }
-                            height: (parent.height - text_weather_current_title.height) / 2
-                            width: parent.width - text_weather_current_realtime.width
-
-                            Image {
-                                id: image_weather_current_humidity
-
-                                anchors.verticalCenter: parent.verticalCenter
-                                source: "qrc:/res/icons/weather/humidity.svg"
-                                sourceSize {
-                                    height: parent.height * 2 / 3
-                                    width: height
-                                }
-                                visible: false
-                            }
-
-                            Text {
-                                id: text_weather_current_humidity
-
-                                anchors {
-                                    left: image_weather_current_humidity.right
-                                    leftMargin: 8
-                                    verticalCenter: image_weather_current_humidity.verticalCenter
-                                }
-                                color: "#ffffff"
-                                font.pixelSize: image_weather_current_humidity.height
-                            }
-                        }
-
-                        Item {
-                            anchors {
-                                left: item_weather_current_humidity.left
-                                top: item_weather_current_humidity.bottom
-                            }
-                            height: item_weather_current_humidity.height
-                            width: item_weather_current_humidity.width
-
-                            Image {
-                                id: image_weather_current_windpower
-
-                                anchors.verticalCenter: parent.verticalCenter
-                                source: "qrc:/res/icons/weather/windsock.svg"
-                                sourceSize {
-                                    height: image_weather_current_humidity.height
-                                    width: height
-                                }
-                                visible: false
-                            }
-
-                            Text {
-                                id: text_weather_current_windpower
-
-                                anchors {
-                                    left: image_weather_current_windpower.right
-                                    leftMargin: 8
-                                    verticalCenter: image_weather_current_windpower.verticalCenter
-                                }
-                                color: "#ffffff"
-                                font.pixelSize: image_weather_current_windpower.height
-                            }
+                            color: "#ffffff"
+                            font.pixelSize: image_weather_current_windpower.height
                         }
                     }
                 }
             }
 
-            Item {
-                Row {
-                    anchors.fill: parent
+            Row {
+                Item {
+                    id: item_weather_forecast_0
 
-                    Item {
-                        id: item_weather_forecast_0
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: parent.height - 32
+                    width: parent.width / 4
 
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: parent.height - 32
-                        width: parent.width / 4
+                    Text {
+                        id: text_weather_forecast_0_date
 
-                        Text {
-                            id: text_weather_forecast_0_date
-
-                            anchors {
-                                horizontalCenter: image_weather_forecast_0.horizontalCenter
-                                top: parent.top
-                            }
-                            color: "#ffffff"
-                            font {
-                                pixelSize: parent.height / 6
-                                weight: Font.Bold
-                            }
+                        anchors {
+                            horizontalCenter: image_weather_forecast_0.horizontalCenter
+                            top: parent.top
                         }
-
-                        Image {
-                            id: image_weather_forecast_0
-
-                            anchors.centerIn: parent
-                            sourceSize {
-                                height: parent.height / 2.5
-                                width: height
-                            }
-                        }
-
-                        Text {
-                            id: text_weather_forecast_0_temperature
-
-                            anchors {
-                                bottom: parent.bottom
-                                horizontalCenter: image_weather_forecast_0.horizontalCenter
-                            }
-                            color: "#ffffff"
-                            font.pixelSize: text_weather_forecast_0_date.font.pixelSize
+                        color: "#ffffff"
+                        font {
+                            pixelSize: parent.height / 6
+                            weight: Font.Bold
                         }
                     }
 
-                    Item {
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: item_weather_forecast_0.height
-                        width: item_weather_forecast_0.width
+                    Image {
+                        id: image_weather_forecast_0
 
-                        Text {
-                            id: text_weather_forecast_1_date
-
-                            anchors {
-                                horizontalCenter: image_weather_forecast_1.horizontalCenter
-                                top: parent.top
-                            }
-                            color: "#ffffff"
-                            font {
-                                pixelSize: text_weather_forecast_0_date.font.pixelSize
-                                weight: Font.Bold
-                            }
-                        }
-
-                        Image {
-                            id: image_weather_forecast_1
-
-                            anchors.centerIn: parent
-                            sourceSize {
-                                height: image_weather_forecast_0.height
-                                width: height
-                            }
-                        }
-
-                        Text {
-                            id: text_weather_forecast_1_temperature
-
-                            anchors {
-                                bottom: parent.bottom
-                                horizontalCenter: image_weather_forecast_1.horizontalCenter
-                            }
-                            color: "#ffffff"
-                            font.pixelSize: text_weather_forecast_0_temperature.font.pixelSize
+                        anchors.centerIn: parent
+                        sourceSize {
+                            height: parent.height / 2.5
+                            width: height
                         }
                     }
 
-                    Item {
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: item_weather_forecast_0.height
-                        width: item_weather_forecast_0.width
+                    Text {
+                        id: text_weather_forecast_0_temperature
 
-                        Text {
-                            id: text_weather_forecast_2_date
-
-                            anchors {
-                                horizontalCenter: image_weather_forecast_2.horizontalCenter
-                                top: parent.top
-                            }
-                            color: "#ffffff"
-                            font {
-                                pixelSize: text_weather_forecast_0_date.font.pixelSize
-                                weight: Font.Bold
-                            }
+                        anchors {
+                            bottom: parent.bottom
+                            horizontalCenter: image_weather_forecast_0.horizontalCenter
                         }
+                        color: "#ffffff"
+                        font.pixelSize: text_weather_forecast_0_date.font.pixelSize
+                    }
+                }
 
-                        Image {
-                            id: image_weather_forecast_2
+                Item {
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: item_weather_forecast_0.height
+                    width: item_weather_forecast_0.width
 
-                            anchors.centerIn: parent
-                            sourceSize {
-                                height: image_weather_forecast_0.height
-                                width: height
-                            }
+                    Text {
+                        id: text_weather_forecast_1_date
+
+                        anchors {
+                            horizontalCenter: image_weather_forecast_1.horizontalCenter
+                            top: parent.top
                         }
-
-                        Text {
-                            id: text_weather_forecast_2_temperature
-
-                            anchors {
-                                bottom: parent.bottom
-                                horizontalCenter: image_weather_forecast_2.horizontalCenter
-                            }
-                            color: "#ffffff"
-                            font.pixelSize: text_weather_forecast_0_temperature.font.pixelSize
+                        color: "#ffffff"
+                        font {
+                            pixelSize: text_weather_forecast_0_date.font.pixelSize
+                            weight: Font.Bold
                         }
                     }
 
-                    Item {
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: item_weather_forecast_0.height
-                        width: item_weather_forecast_0.width
+                    Image {
+                        id: image_weather_forecast_1
 
-                        Text {
-                            id: text_weather_forecast_3_date
-
-                            anchors {
-                                horizontalCenter: image_weather_forecast_3.horizontalCenter
-                                top: parent.top
-                            }
-                            color: "#ffffff"
-                            font {
-                                pixelSize: text_weather_forecast_0_date.font.pixelSize
-                                weight: Font.Bold
-                            }
+                        anchors.centerIn: parent
+                        sourceSize {
+                            height: image_weather_forecast_0.height
+                            width: height
                         }
+                    }
 
-                        Image {
-                            id: image_weather_forecast_3
+                    Text {
+                        id: text_weather_forecast_1_temperature
 
-                            anchors.centerIn: parent
-                            sourceSize {
-                                height: image_weather_forecast_0.height
-                                width: height
-                            }
+                        anchors {
+                            bottom: parent.bottom
+                            horizontalCenter: image_weather_forecast_1.horizontalCenter
                         }
+                        color: "#ffffff"
+                        font.pixelSize: text_weather_forecast_0_temperature.font.pixelSize
+                    }
+                }
 
-                        Text {
-                            id: text_weather_forecast_3_temperature
+                Item {
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: item_weather_forecast_0.height
+                    width: item_weather_forecast_0.width
 
-                            anchors {
-                                bottom: parent.bottom
-                                horizontalCenter: image_weather_forecast_3.horizontalCenter
-                            }
-                            color: "#ffffff"
-                            font.pixelSize: text_weather_forecast_0_temperature.font.pixelSize
+                    Text {
+                        id: text_weather_forecast_2_date
+
+                        anchors {
+                            horizontalCenter: image_weather_forecast_2.horizontalCenter
+                            top: parent.top
                         }
+                        color: "#ffffff"
+                        font {
+                            pixelSize: text_weather_forecast_0_date.font.pixelSize
+                            weight: Font.Bold
+                        }
+                    }
+
+                    Image {
+                        id: image_weather_forecast_2
+
+                        anchors.centerIn: parent
+                        sourceSize {
+                            height: image_weather_forecast_0.height
+                            width: height
+                        }
+                    }
+
+                    Text {
+                        id: text_weather_forecast_2_temperature
+
+                        anchors {
+                            bottom: parent.bottom
+                            horizontalCenter: image_weather_forecast_2.horizontalCenter
+                        }
+                        color: "#ffffff"
+                        font.pixelSize: text_weather_forecast_0_temperature.font.pixelSize
+                    }
+                }
+
+                Item {
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: item_weather_forecast_0.height
+                    width: item_weather_forecast_0.width
+
+                    Text {
+                        id: text_weather_forecast_3_date
+
+                        anchors {
+                            horizontalCenter: image_weather_forecast_3.horizontalCenter
+                            top: parent.top
+                        }
+                        color: "#ffffff"
+                        font {
+                            pixelSize: text_weather_forecast_0_date.font.pixelSize
+                            weight: Font.Bold
+                        }
+                    }
+
+                    Image {
+                        id: image_weather_forecast_3
+
+                        anchors.centerIn: parent
+                        sourceSize {
+                            height: image_weather_forecast_0.height
+                            width: height
+                        }
+                    }
+
+                    Text {
+                        id: text_weather_forecast_3_temperature
+
+                        anchors {
+                            bottom: parent.bottom
+                            horizontalCenter: image_weather_forecast_3.horizontalCenter
+                        }
+                        color: "#ffffff"
+                        font.pixelSize: text_weather_forecast_0_temperature.font.pixelSize
                     }
                 }
             }
@@ -678,7 +737,8 @@ Window {
 
             onTriggered: {
                 indicator_weather.running = true
-                Weather.request_data("广州市")
+                Weather.set_url(url_weather_current, url_weather_forecast)
+                Weather.request_data(city)
             }
         }
 
@@ -1099,7 +1159,8 @@ Window {
 
             onTriggered: {
                 indicator_ncov.running = true
-                Ncov.request_data("广东省")
+                Ncov.set_url(url_ncov)
+                Ncov.request_data(province)
             }
         }
 
@@ -1115,10 +1176,11 @@ Window {
             left: background_media.right
             leftMargin: 16
         }
+        enabled: false
         flat: true
         height: button_elevator_exit.height
         icon.source: "qrc:/res/icons/elevator/building.svg"
-        text: "设置楼层"
+        text: "第 " + client_floor + " 层"
 
         ToolTip {
             text: "楼层信息"
@@ -1187,6 +1249,28 @@ Window {
             weight: Font.Light
         }
         text: "--"
+
+        Behavior on text {
+            ParallelAnimation {
+                PropertyAnimation {
+                    duration: 500
+                    easing.type: Easing.InOutCubic
+                    from: 0
+                    property: "opacity"
+                    target: text_elevator_floor
+                    to: 1
+                }
+
+                PropertyAnimation {
+                    duration: 500
+                    easing.type: Easing.InOutCubic
+                    from: 0.75
+                    property: "scale"
+                    target: text_elevator_floor
+                    to: 1
+                }
+            }
+        }
     }
 
     Item {
@@ -1220,6 +1304,17 @@ Window {
                 weight: Font.Bold
             }
             text: "未连接"
+
+            Behavior on text {
+                PropertyAnimation {
+                    duration: 500
+                    easing.type: Easing.InOutCubic
+                    from: 0
+                    property: "opacity"
+                    targets: [image_elevator_direction, text_elevator_direction]
+                    to: 1
+                }
+            }
         }
     }
 
@@ -1252,7 +1347,7 @@ Window {
                 verticalCenter: image_elevator_name.verticalCenter
             }
             font.pixelSize: parent.height
-            text: "--"
+            text: client_name
         }
     }
 
@@ -1262,10 +1357,10 @@ Window {
             verticalCenter: item_elevator_name.verticalCenter
         }
         height: item_elevator_name.height
-        width: image_elevator_remain_time.width + text_elevator_remain_time.width + 8
+        width: image_elevator_time_remain.width + text_elevator_time_remain.width + 8
 
         Image {
-            id: image_elevator_remain_time
+            id: image_elevator_time_remain
 
             source: "qrc:/res/icons/elevator/clock.svg"
             sourceSize {
@@ -1275,12 +1370,12 @@ Window {
         }
 
         Text {
-            id: text_elevator_remain_time
+            id: text_elevator_time_remain
 
             anchors {
-                left: image_elevator_remain_time.right
+                left: image_elevator_time_remain.right
                 leftMargin: 8
-                verticalCenter: image_elevator_remain_time.verticalCenter
+                verticalCenter: image_elevator_time_remain.verticalCenter
             }
             font.pixelSize: parent.height
             text: "-- 秒"
@@ -1335,6 +1430,17 @@ Window {
                 height: item_elevator_name.height
                 width: height
             }
+
+            Behavior on source {
+                PropertyAnimation {
+                    duration: 500
+                    easing.type: Easing.InOutCubic
+                    from: 0
+                    property: "opacity"
+                    target: image_elevator_next_stop
+                    to: 1
+                }
+            }
         }
 
         Text {
@@ -1346,7 +1452,18 @@ Window {
                 verticalCenter: image_elevator_next_stop.verticalCenter
             }
             font.pixelSize: image_elevator_next_stop.height
-            text: "--"
+            text: "…"
+
+            Behavior on text {
+                PropertyAnimation {
+                    duration: 500
+                    easing.type: Easing.InOutCubic
+                    from: 0
+                    property: "opacity"
+                    target: text_elevator_next_stop
+                    to: 1
+                }
+            }
         }
 
         ProgressBar {
@@ -1356,8 +1473,14 @@ Window {
                 top: image_elevator_next_stop.bottom
                 topMargin: 8
             }
-            value: 0.5
             width: parent.width
+
+            Behavior on value {
+                NumberAnimation {
+                    easing.type: Easing.InOutCubic
+                    duration: 500
+                }
+            }
         }
     }
 
@@ -1369,13 +1492,15 @@ Window {
             bottomMargin: height / 4
             horizontalCenter: button_downstairs.horizontalCenter
         }
+        enabled: false
         height: button_downstairs.height
         icon.source: "qrc:/res/icons/elevator/arrow-up.svg"
         text: "上楼"
         width: button_downstairs.width
 
         onClicked: {
-            Elevator.add_next_stop_up(spinbox_elevator_client_floor.value)
+            highlighted = highlighted ? false : true
+            Elevator.update_next_stop_up(client_floor)
         }
     }
 
@@ -1388,13 +1513,15 @@ Window {
             right: parent.right
             rightMargin: 32
         }
+        enabled: false
         height: parent.height / 8
         icon.source: "qrc:/res/icons/elevator/arrow-down.svg"
         text: "下楼"
         width: parent.width - background_media.width - 80
 
         onClicked: {
-            Elevator.add_next_stop_down(spinbox_elevator_client_floor.value)
+            highlighted = highlighted ? false : true
+            Elevator.update_next_stop_down(client_floor)
         }
     }
 
@@ -1464,10 +1591,14 @@ Window {
             PropertyAnimation on x {
                 id: animation_text_notification
 
-                duration: 60000
+                duration: notification_speed
                 from: background_notification.width
                 loops: Animation.Infinite
                 to: -text_notification.width
+
+                onDurationChanged: {
+                    restart()
+                }
             }
         }
 
@@ -1479,7 +1610,7 @@ Window {
             triggeredOnStart: true
 
             onTriggered: {
-                Notification.read_file()
+                Notification.read_file(path_notification)
             }
         }
 
@@ -1493,10 +1624,10 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: parent.height / 2
+        height: parent.height / 3
         modal: true
         standardButtons: Dialog.Cancel | Dialog.Ok
-        title: "⚙ 设备信息"
+        title: "⚙ 楼层信息"
         width: parent.width / 3
 
         Column {
@@ -1505,34 +1636,30 @@ Window {
 
             Text {
                 font.weight: Font.Medium
-                text: "🏠 当前设备所在楼层"
+                text: "当前设备所在楼层（测试）"
             }
 
             SpinBox {
                 id: spinbox_elevator_client_floor
 
                 editable: true
-                from: 1
-                to: 12
-                width: parent.width
-            }
-
-            Text {
-                font.weight: Font.Medium
-                text: "🏷 自定义电梯名称"
-            }
-
-            TextField {
-                id: textfield_elevator_client_floor
-
-                text: "客梯"
+                from: floor_min
+                to: floor_max
+                value: client_floor
                 width: parent.width
             }
         }
 
         onAccepted: {
-            button_elevator_client_floor.text = "第 " + spinbox_elevator_client_floor.value + " 层"
-            text_elevator_name.text = textfield_elevator_client_floor.text
+            if (client_floor !== spinbox_elevator_client_floor.value) {
+                client_floor = spinbox_elevator_client_floor.value
+                button_downstairs.enabled = client_floor === floor_min ? false : true
+                button_downstairs.highlighted = Elevator.get_is_next_stop_down(
+                            client_floor) ? true : false
+                button_upstairs.enabled = client_floor === floor_max ? false : true
+                button_upstairs.highlighted = Elevator.get_is_next_stop_up(
+                            client_floor) ? true : false
+            }
         }
     }
 
@@ -1541,14 +1668,334 @@ Window {
 
         anchors.centerIn: parent
         focus: true
+        header: TabBar {
+            id: tabbar_elevator_setting
+
+            TabButton {
+                text: "🛠 常规"
+            }
+
+            TabButton {
+                text: "🎞 媒体"
+            }
+
+            TabButton {
+                text: "🔔 信息栏"
+            }
+
+            TabButton {
+                text: "🕹 模拟电梯"
+            }
+        }
         height: parent.height * 2 / 3
         modal: true
         standardButtons: dialog_elevator_client_floor.standardButtons
-        title: "⚙ 设置"
         width: dialog_elevator_client_floor.width
 
+        StackLayout {
+            anchors.fill: parent
+            currentIndex: tabbar_elevator_setting.currentIndex
+
+            Column {
+                spacing: 16
+
+                Text {
+                    font.weight: Font.Medium
+                    text: "窗口高度"
+                }
+
+                SpinBox {
+                    id: spinbox_elevator_setting_0_0
+
+                    editable: true
+                    from: window_0.minimumHeight
+                    to: 2160
+                    value: window_0.height
+                    width: parent.width
+                }
+
+                Text {
+                    font.weight: Font.Medium
+                    text: "窗口宽度"
+                }
+
+                SpinBox {
+                    id: spinbox_elevator_setting_0_1
+
+                    editable: true
+                    from: window_0.minimumWidth
+                    to: 3840
+                    value: window_0.width
+                    width: parent.width
+                }
+
+                Text {
+                    font.weight: Font.Medium
+                    text: "自定义电梯名称"
+                }
+
+                TextField {
+                    id: textfield_elevator_setting_0_2
+
+                    placeholderText: "未命名"
+                    text: client_name
+                    width: parent.width
+                }
+            }
+
+            Column {
+                spacing: 16
+
+                Text {
+                    font.weight: Font.Medium
+                    text: "播放模式"
+                }
+
+                ComboBox {
+                    id: combobox_elevator_setting_1_0
+
+                    currentIndex: playback_mode
+                    model: ["列表循环", "随机播放"]
+                    width: parent.width
+                }
+
+                Text {
+                    font.weight: Font.Medium
+                    text: "媒体文件查找路径"
+                }
+
+                TextField {
+                    id: textfield_elevator_setting_1_1
+
+                    placeholderText: path_media_default
+                    text: path_media
+                    width: parent.width
+                }
+            }
+
+            ScrollView {
+                id: scrollview_elevator_setting_2
+
+                clip: true
+                width: parent.width
+
+                Column {
+                    spacing: 16
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "所在省份"
+                    }
+
+                    TextField {
+                        id: textfield_elevator_setting_2_0
+
+                        placeholderText: "广东省"
+                        text: province
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "所在城市"
+                    }
+
+                    TextField {
+                        id: textfield_elevator_setting_2_1
+
+                        placeholderText: "广州市"
+                        text: city
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "通知滚动速度"
+                    }
+
+                    Slider {
+                        id: slider__elevator_setting_2_2
+
+                        from: 120000
+                        to: 30000
+                        stepSize: 5000
+                        value: notification_speed
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "通知文件查找路径"
+                    }
+
+                    TextField {
+                        id: textfield_elevator_setting_2_3
+
+                        placeholderText: path_notification_default
+                        text: path_notification
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "自定义实时天气 API"
+                    }
+
+                    TextField {
+                        id: textfield_elevator_setting_2_4
+
+                        placeholderText: url_weather_current_default
+                        text: url_weather_current
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "自定义预报天气 API"
+                    }
+
+                    TextField {
+                        id: textfield_elevator_setting_2_5
+
+                        placeholderText: url_weather_forecast_default
+                        text: url_weather_forecast
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "自定义疫情信息 API"
+                    }
+
+                    TextField {
+                        id: textfield_elevator_setting_2_6
+
+                        placeholderText: url_ncov_default
+                        text: url_ncov
+                        width: scrollview_elevator_setting_2.width
+                    }
+                }
+            }
+
+            ScrollView {
+                clip: true
+                width: parent.width
+
+                Column {
+                    spacing: 16
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "最高楼层"
+                    }
+
+                    SpinBox {
+                        id: spinbox_elevator_setting_3_0
+
+                        editable: true
+                        from: floor_min
+                        to: 255
+                        value: floor_max
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "最低楼层"
+                    }
+
+                    SpinBox {
+                        id: spinbox_elevator_setting_3_1
+
+                        editable: true
+                        from: -254
+                        to: floor_max
+                        value: floor_min
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "电梯所在位置"
+                    }
+
+                    ComboBox {
+                        id: combobox_elevator_setting_3_2
+
+                        currentIndex: side
+                        model: ["左侧", "右侧"]
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "轿厢门开关所需时间"
+                    }
+
+                    SpinBox {
+                        id: spinbox_elevator_setting_3_3
+
+                        editable: true
+                        from: 1
+                        to: 255
+                        value: time_door_move
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "电梯前往下一楼层所需时间"
+                    }
+
+                    SpinBox {
+                        id: spinbox_elevator_setting_3_4
+
+                        editable: true
+                        from: 1
+                        to: 255
+                        value: time_next_floor
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "电梯在各楼层的停留时间"
+                    }
+
+                    SpinBox {
+                        id: spinbox_elevator_setting_3_5
+
+                        editable: true
+                        from: 1
+                        to: 255
+                        value: time_stop
+                        width: scrollview_elevator_setting_2.width
+                    }
+                }
+            }
+        }
+
         onAccepted: {
-            Elevator.start(12, 6, 3, 3, 10)
+            city = textfield_elevator_setting_2_1.length ? textfield_elevator_setting_2_1.text : "广州市"
+            client_name = textfield_elevator_setting_0_2.length ? textfield_elevator_setting_0_2.text : "--"
+            floor_max = spinbox_elevator_setting_3_0.value
+            floor_min = spinbox_elevator_setting_3_1.value
+            notification_speed = slider__elevator_setting_2_2.value
+            path_media = textfield_elevator_setting_1_1.length ? textfield_elevator_setting_1_1.text : path_media_default
+            path_notification = textfield_elevator_setting_2_3.length ? textfield_elevator_setting_2_3.text : path_notification_default
+            playback_mode = combobox_elevator_setting_1_0.currentIndex
+            province = textfield_elevator_setting_2_0.length ? textfield_elevator_setting_2_0.text : "广东省"
+            side = combobox_elevator_setting_3_2.currentIndex
+            time_door_move = spinbox_elevator_setting_3_3.value
+            time_next_floor = spinbox_elevator_setting_3_4.value
+            time_stop = spinbox_elevator_setting_3_5.value
+            url_ncov = textfield_elevator_setting_2_6.length ? textfield_elevator_setting_2_6.text : url_ncov_default
+            url_weather_current = textfield_elevator_setting_2_4.length ? textfield_elevator_setting_2_4.text : url_weather_current_default
+            url_weather_forecast = textfield_elevator_setting_2_5.length ? textfield_elevator_setting_2_5.text : url_weather_forecast_default
+            window_0.height = spinbox_elevator_setting_0_0.value
+            window_0.width = spinbox_elevator_setting_0_1.value
+            Elevator.start(floor_max, floor_min, side, time_door_move,
+                           time_next_floor, time_stop)
         }
     }
 
@@ -1557,7 +2004,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: parent.height / 3
+        height: dialog_elevator_client_floor.height
         modal: true
         standardButtons: Dialog.Cancel | Dialog.Retry
         title: "⚠ 错误"
@@ -1583,7 +2030,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: dialog_media.height
+        height: dialog_elevator_client_floor.height
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
@@ -1609,7 +2056,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: dialog_media.height
+        height: dialog_elevator_client_floor.height
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
@@ -1635,7 +2082,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: dialog_media.height
+        height: dialog_elevator_client_floor.height
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
@@ -1656,10 +2103,3 @@ Window {
         }
     }
 }
-
-/*##^##
-Designer {
-    D{i:0;autoSize:true;formeditorZoom:0.75;height:720;width:1280}
-}
-##^##*/
-
