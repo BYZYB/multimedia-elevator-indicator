@@ -1,6 +1,7 @@
 #include "weather.h"
 
 QJsonValue Weather::current_data, Weather::forecast_data;
+QString Weather::url_current, Weather::url_forecast;
 
 // Get the weather image URL by type (weather forecast or current weather) and day (default to today, not used in current weather)
 QUrl Weather::get_image_url(const bool &is_forecast, const qint32 &day) {
@@ -47,7 +48,7 @@ QUrl Weather::get_image_url(const bool &is_forecast, const qint32 &day) {
 void Weather::request_data(const QString &city) {
     QEventLoop loop;
     QNetworkAccessManager manager;
-    const QNetworkRequest request_current(URL_WEATHER_CURRENT + city), request_forecast(URL_WEATHER_FORECAST + city);
+    const QNetworkRequest request_current(url_current + city), request_forecast(url_forecast + city);
     auto *reply_current = manager.get(request_current), *reply_forecast = manager.get(request_forecast);
 
     connect(reply_forecast, SIGNAL(finished()), &loop, SLOT(quit()));
