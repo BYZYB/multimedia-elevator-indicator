@@ -34,6 +34,7 @@ Thumbs.db
 *.rc
 *.cache
 *.stash
+*qmlcache.qrc
 build-*/
 test_*/
 

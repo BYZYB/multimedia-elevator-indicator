@@ -12,22 +12,44 @@
 #include <QDebug>
 #endif
 
-#define URL_WEATHER_CURRENT "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&city="
-#define URL_WEATHER_FORECAST "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&extensions=all&city="
-
 class Weather : public QObject {
 public:
     Weather(QObject *parent = nullptr) : QObject(parent) {}
     Q_INVOKABLE static inline QJsonValue get_current_data() { return current_data; }
+    Q_INVOKABLE static inline QString get_day_name(const quint8 &day) {
+        switch (day) {
+        case 1:
+            return "星期一";
+        case 2:
+            return "星期二";
+        case 3:
+            return "星期三";
+        case 4:
+            return "星期四";
+        case 5:
+            return "星期五";
+        case 6:
+            return "星期六";
+        case 7:
+            return "星期日";
+        default:
+            return "--";
+        }
+    }
     Q_INVOKABLE static inline QJsonValue get_forecast_data() { return forecast_data; }
     Q_INVOKABLE QUrl get_image_url(const bool &is_forecast, const qint32 &day = 0);
 
 public slots:
     void request_data(const QString &city);
+    static inline void set_url(const QString &url_current, const QString &url_forecast) {
+        Weather::url_current = url_current;
+        Weather::url_forecast = url_forecast;
+    }
 
 private:
     Q_OBJECT
     static QJsonValue current_data, forecast_data;
+    static QString url_current, url_forecast;
 
 signals:
     void weatherAvailable();

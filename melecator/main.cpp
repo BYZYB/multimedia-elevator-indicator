@@ -16,10 +16,11 @@ int main(int argc, char *argv[]) {
     QQmlApplicationEngine engine;
 
     app.setFont(QFont("Noto Sans CJK SC"));
+    engine.rootContext()->setContextProperty("path_dir", app.applicationDirPath());
     engine.rootContext()->setContextProperty("Elevator", new Elevator());
-    engine.rootContext()->setContextProperty("Media", new Media(app.applicationDirPath()));
+    engine.rootContext()->setContextProperty("Media", new Media());
     engine.rootContext()->setContextProperty("Ncov", new Ncov());
-    engine.rootContext()->setContextProperty("Notification", new Notification(app.applicationDirPath()));
+    engine.rootContext()->setContextProperty("Notification", new Notification());
     engine.rootContext()->setContextProperty("Weather", new Weather());
     engine.load("qrc:/main.qml");
 
