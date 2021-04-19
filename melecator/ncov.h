@@ -12,8 +12,6 @@
 #include <QDebug>
 #endif
 
-#define URL_NCOV "https://lab.isaaclin.cn/nCoV/api/area?province="
-
 class Ncov : public QObject {
 public:
     Ncov(QObject *parent = nullptr) : QObject(parent) {}
@@ -22,10 +20,12 @@ public:
 
 public slots:
     void request_data(const QString &province);
+    static inline void set_url(const QString &url) { Ncov::url = url; }
 
 private:
     Q_OBJECT
     static QJsonValue capital_data, province_data;
+    static QString url;
 
 signals:
     void ncovAvailable();

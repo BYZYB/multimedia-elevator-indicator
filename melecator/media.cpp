@@ -3,7 +3,7 @@
 QList<QUrl> Media::url;
 
 // Get the absolute path of each media file in a specific directory
-void Media::read_file() {
+void Media::read_file(const QString &path) {
     const auto list = QDir(path).entryList({"*.avi", "*.mp4"}, QDir::Files, QDir::Name);
 
     // Read all media files in this directory
@@ -15,7 +15,7 @@ void Media::read_file() {
 #ifdef Q_OS_WIN
             url.append(full_path);
 #else
-            media_url.append("file://" + full_path);
+            url.append("file://" + full_path);
 #endif
             file.close();
         } else { // Cannot open media file in readonly mode

@@ -12,6 +12,7 @@ HEADERS += \
     weather.h
 
 QT += \
+    multimedia \
     quick \
     quickcontrols2 \
     svg
@@ -27,7 +28,7 @@ SOURCES += \
 RESOURCES += \
     app.qrc
 
-VERSION = 0.6.0
+VERSION = 0.7.1
 
 windows {
     RC_ICONS = res/icons/app_icon.ico
