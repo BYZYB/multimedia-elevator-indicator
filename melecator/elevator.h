@@ -11,16 +11,14 @@
 #endif
 
 #define DEFAULT_FLOOR 1
-#define DEFAULT_MAX_FLOOR 12
-#define DEFAULT_MIN_FLOOR 1
+#define DEFAULT_FLOOR_MAX 12
+#define DEFAULT_FLOOR_MIN 1
 #define DEFAULT_TIME_DOOR_MOVE 3
 #define DEFAULT_TIME_NEXT_FLOOR 3
 #define DEFAULT_TIME_STOP 5
 #define DIRECTION_DOWN 1
 #define DIRECTION_STOP 0
 #define DIRECTION_UP 2
-#define SIDE_LEFT 0
-#define SIDE_RIGHT 1
 
 class Elevator : public QObject {
 public:
@@ -40,14 +38,13 @@ public:
     Q_INVOKABLE static inline qint32 get_time_remain() { return time_remain; }
 
 public slots:
-    inline void start(const qint32 &floor_max = DEFAULT_MAX_FLOOR, const qint32 &floor_min = DEFAULT_MIN_FLOOR, const quint8 &side = SIDE_LEFT, const quint32 &time_door_move = DEFAULT_TIME_DOOR_MOVE, const quint32 &time_next_floor = DEFAULT_TIME_NEXT_FLOOR, const quint32 &time_stop = DEFAULT_TIME_STOP) {
+    inline void start(const qint32 &floor_max = DEFAULT_FLOOR_MAX, const qint32 &floor_min = DEFAULT_FLOOR_MIN, const quint32 &time_door_move = DEFAULT_TIME_DOOR_MOVE, const quint32 &time_next_floor = DEFAULT_TIME_NEXT_FLOOR, const quint32 &time_stop = DEFAULT_TIME_STOP) {
         capacity = progress = slice = time_remain = 0;
         direction_current = DIRECTION_STOP;
         direction_planned = DIRECTION_UP;
         floor_current = floor_min > 0 ? floor_min : DEFAULT_FLOOR;
         Elevator::floor_max = floor_max;
         Elevator::floor_min = floor_min;
-        Elevator::side = side;
         Elevator::time_door_move = time_door_move;
         Elevator::time_next_floor = time_next_floor;
         Elevator::time_stop = time_stop;
@@ -58,19 +55,22 @@ public slots:
     void update_next_stop_down(const qint32 &next_stop);
     void update_next_stop_up(const qint32 &next_stop);
 
-private:
-    Q_OBJECT
-    static quint8 capacity, direction_current, direction_planned, progress, side;
+protected:
+    static quint8 capacity, direction_current, direction_planned, progress;
     static qint32 floor_current, floor_max, floor_min, time_remain;
     static bool is_door_open, is_passive;
     static quint32 slice, time_door_move, time_next_floor, time_stop;
     static QTimer *timer;
     QVector<bool> is_next_stop_down, is_next_stop_up;
 
+private:
+    Q_OBJECT
+
 private slots:
     void process();
 
 signals:
+    void elevatorCapacityUpdate();
     void elevatorDirectionUpdate();
     void elevatorDoorClose();
     void elevatorDoorOpen();

@@ -46,10 +46,12 @@ public slots:
         Weather::url_forecast = url_forecast;
     }
 
-private:
-    Q_OBJECT
+protected:
     static QJsonValue current_data, forecast_data;
     static QString url_current, url_forecast;
+
+private:
+    Q_OBJECT
 
 signals:
     void weatherAvailable();

@@ -20,9 +20,11 @@ public:
 public slots:
     void read_file(const QString &path);
 
+protected:
+    static QMap<QString, QString> data;
+
 private:
     Q_OBJECT
-    static QMap<QString, QString> data;
 
 signals:
     void notificationAvailable();

@@ -1,6 +1,6 @@
 #include "elevator.h"
 
-quint8 Elevator::capacity, Elevator::direction_current, Elevator::direction_planned, Elevator::progress, Elevator::side;
+quint8 Elevator::capacity, Elevator::direction_current, Elevator::direction_planned, Elevator::progress;
 qint32 Elevator::floor_current, Elevator::floor_max, Elevator::floor_min, Elevator::time_remain;
 bool Elevator::is_door_open, Elevator::is_passive;
 quint32 Elevator::slice, Elevator::time_door_move, Elevator::time_next_floor, Elevator::time_stop;
@@ -76,6 +76,7 @@ void Elevator::process() {
                         direction_planned = DIRECTION_UP;
                         direction_current = DIRECTION_STOP;
                         is_door_open = is_next_stop_down[floor_current] = false;
+                        emit elevatorCapacityUpdate();
                         emit elevatorDoorClose();
                         emit elevatorDirectionUpdate();
                         emit elevatorNextStopUpdate();
@@ -100,6 +101,7 @@ void Elevator::process() {
                 --progress;
                 slice = 0;
                 time_remain <= 0 ? time_remain = 0 : --time_remain;
+                emit elevatorCapacityUpdate();
                 emit elevatorDirectionUpdate();
                 emit elevatorNextStopUpdate();
                 emit elevatorTimeRemainUpdate();

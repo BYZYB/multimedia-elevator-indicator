@@ -18,9 +18,11 @@ public:
 public slots:
     void read_file(const QString &path);
 
+protected:
+    static QList<QUrl> url;
+
 private:
     Q_OBJECT
-    static QList<QUrl> url;
 
 signals:
     void mediaAvailable();

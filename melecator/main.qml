@@ -12,23 +12,24 @@ Window {
     property string client_name: "客梯"
     property int floor_max: 12
     property int floor_min: 1
-    property string path_media: path_media_default
-    property string path_media_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/videos/" : "/../test_data/videos/")
-    property string path_notification: path_notification_default
-    property string path_notification_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/notifications/" : "/../test_data/notifications/")
+    property bool is_capacity_accurate: true
+    property bool is_playback_random: true
     property int notification_speed: 60000
-    property int playback_mode: 1
+    readonly property string path_media_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/videos/" : "/../test_data/videos/")
+    property string path_media: path_media_default
+    readonly property string path_notification_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/notifications/" : "/../test_data/notifications/")
+    property string path_notification: path_notification_default
     property string province: "广东省"
-    property int side: 0
+    property int side: 1
     property int time_door_move: 3
     property int time_next_floor: 3
     property int time_stop: 5
+    readonly property string url_ncov_default: "https://lab.isaaclin.cn/nCoV/api/area?province="
     property string url_ncov: url_ncov_default
-    property string url_ncov_default: "https://lab.isaaclin.cn/nCoV/api/area?province="
+    readonly property string url_weather_current_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&city="
     property string url_weather_current: url_weather_current_default
-    property string url_weather_current_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&city="
+    readonly property string url_weather_forecast_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&extensions=all&city="
     property string url_weather_forecast: url_weather_forecast_default
-    property string url_weather_forecast_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&extensions=all&city="
 
     minimumHeight: 720
     minimumWidth: 1280
@@ -38,11 +39,32 @@ Window {
     Connections {
         target: Elevator
 
+        function onElevatorCapacityUpdate() {
+            if (is_capacity_accurate) {
+                text_elevator_capacity.text = Elevator.get_capacity() + "%"
+            } else {
+                text_elevator_capacity.text = Elevator.get_capacity(
+                            ) > 100 ? "超载" : "正常"
+            }
+        }
+
         function onElevatorDirectionUpdate() {
             switch (Elevator.get_direction_current()) {
             case 0:
-                image_elevator_direction.source = side === 0 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
-                text_elevator_direction.text = side === 0 ? "左侧停靠" : "右侧停靠"
+                switch (side) {
+                case 0:
+                    image_elevator_direction.source = "qrc:/res/icons/elevator/stop-right.svg"
+                    text_elevator_direction.text = "电梯停靠"
+                    break
+                case 1:
+                    image_elevator_direction.source = "qrc:/res/icons/elevator/stop-left.svg"
+                    text_elevator_direction.text = "左侧停靠"
+                    break
+                case 2:
+                    image_elevator_direction.source = "qrc:/res/icons/elevator/stop-right.svg"
+                    text_elevator_direction.text = "右侧停靠"
+                    break
+                }
                 break
             case 1:
                 image_elevator_direction.source = "qrc:/res/icons/elevator/move-down.svg"
@@ -65,7 +87,6 @@ Window {
             }
 
             image_elevator_direction.source = "qrc:/res/icons/elevator/arrow-collapse.svg"
-            text_elevator_capacity.text = Elevator.get_capacity() + "%"
             text_elevator_direction.text = "关门请注意"
         }
 
@@ -79,7 +100,6 @@ Window {
             }
 
             image_elevator_direction.source = "qrc:/res/icons/elevator/arrow-expand.svg"
-            text_elevator_capacity.text = Elevator.get_capacity() + "%"
             text_elevator_direction.text = "开门请注意"
         }
 
@@ -108,9 +128,9 @@ Window {
             button_elevator_client_floor.enabled = true
             button_upstairs.enabled = client_floor === floor_max ? false : true
             client_floor = spinbox_elevator_client_floor.value
-            image_elevator_direction.source = side === 0 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
-            text_elevator_capacity.text = "0%"
-            text_elevator_direction.text = side === 0 ? "左侧停靠" : "右侧停靠"
+            image_elevator_direction.source = side === 1 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
+            text_elevator_capacity.text = is_capacity_accurate ? "0%" : "正常"
+            text_elevator_direction.text = side === 1 ? "左侧停靠" : side === 2 ? "右侧停靠" : "电梯停靠"
             text_elevator_floor.text = floor_min
             text_elevator_time_remain.text = "0 秒"
         }
@@ -274,7 +294,7 @@ Window {
             playlist: Playlist {
                 id: list_media
 
-                playbackMode: playback_mode === 1 ? Playlist.Random : Playlist.Loop
+                playbackMode: is_playback_random ? Playlist.Random : Playlist.Loop
 
                 onCurrentIndexChanged: {
                     animation_video_media.start()
@@ -1636,7 +1656,7 @@ Window {
 
             Text {
                 font.weight: Font.Medium
-                text: "当前设备所在楼层（测试）"
+                text: "当前设备所在楼层（仅限测试）"
             }
 
             SpinBox {
@@ -1754,7 +1774,7 @@ Window {
                 ComboBox {
                     id: combobox_elevator_setting_1_0
 
-                    currentIndex: playback_mode
+                    currentIndex: is_playback_random
                     model: ["列表循环", "随机播放"]
                     width: parent.width
                 }
@@ -1908,7 +1928,7 @@ Window {
                         id: spinbox_elevator_setting_3_1
 
                         editable: true
-                        from: -254
+                        from: 1
                         to: floor_max
                         value: floor_min
                         width: scrollview_elevator_setting_2.width
@@ -1916,14 +1936,27 @@ Window {
 
                     Text {
                         font.weight: Font.Medium
-                        text: "电梯所在位置"
+                        text: "电梯所在方位"
                     }
 
                     ComboBox {
                         id: combobox_elevator_setting_3_2
 
                         currentIndex: side
-                        model: ["左侧", "右侧"]
+                        model: ["隐藏", "左侧", "右侧"]
+                        width: scrollview_elevator_setting_2.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "电梯载重量显示方式"
+                    }
+
+                    ComboBox {
+                        id: combobox_elevator_setting_3_3
+
+                        currentIndex: is_capacity_accurate
+                        model: ["标准", "精确"]
                         width: scrollview_elevator_setting_2.width
                     }
 
@@ -1933,7 +1966,7 @@ Window {
                     }
 
                     SpinBox {
-                        id: spinbox_elevator_setting_3_3
+                        id: spinbox_elevator_setting_3_4
 
                         editable: true
                         from: 1
@@ -1944,11 +1977,11 @@ Window {
 
                     Text {
                         font.weight: Font.Medium
-                        text: "电梯前往下一楼层所需时间"
+                        text: "电梯前往新楼层所需时间"
                     }
 
                     SpinBox {
-                        id: spinbox_elevator_setting_3_4
+                        id: spinbox_elevator_setting_3_5
 
                         editable: true
                         from: 1
@@ -1959,11 +1992,11 @@ Window {
 
                     Text {
                         font.weight: Font.Medium
-                        text: "电梯在各楼层的停留时间"
+                        text: "电梯在各楼层停留所需时间"
                     }
 
                     SpinBox {
-                        id: spinbox_elevator_setting_3_5
+                        id: spinbox_elevator_setting_3_6
 
                         editable: true
                         from: 1
@@ -1980,21 +2013,22 @@ Window {
             client_name = textfield_elevator_setting_0_2.length ? textfield_elevator_setting_0_2.text : "--"
             floor_max = spinbox_elevator_setting_3_0.value
             floor_min = spinbox_elevator_setting_3_1.value
+            is_capacity_accurate = combobox_elevator_setting_3_3.currentIndex
+            is_playback_random = combobox_elevator_setting_1_0.currentIndex
             notification_speed = slider__elevator_setting_2_2.value
             path_media = textfield_elevator_setting_1_1.length ? textfield_elevator_setting_1_1.text : path_media_default
             path_notification = textfield_elevator_setting_2_3.length ? textfield_elevator_setting_2_3.text : path_notification_default
-            playback_mode = combobox_elevator_setting_1_0.currentIndex
             province = textfield_elevator_setting_2_0.length ? textfield_elevator_setting_2_0.text : "广东省"
             side = combobox_elevator_setting_3_2.currentIndex
-            time_door_move = spinbox_elevator_setting_3_3.value
-            time_next_floor = spinbox_elevator_setting_3_4.value
-            time_stop = spinbox_elevator_setting_3_5.value
+            time_door_move = spinbox_elevator_setting_3_4.value
+            time_next_floor = spinbox_elevator_setting_3_5.value
+            time_stop = spinbox_elevator_setting_3_6.value
             url_ncov = textfield_elevator_setting_2_6.length ? textfield_elevator_setting_2_6.text : url_ncov_default
             url_weather_current = textfield_elevator_setting_2_4.length ? textfield_elevator_setting_2_4.text : url_weather_current_default
             url_weather_forecast = textfield_elevator_setting_2_5.length ? textfield_elevator_setting_2_5.text : url_weather_forecast_default
             window_0.height = spinbox_elevator_setting_0_0.value
             window_0.width = spinbox_elevator_setting_0_1.value
-            Elevator.start(floor_max, floor_min, side, time_door_move,
+            Elevator.start(floor_max, floor_min, time_door_move,
                            time_next_floor, time_stop)
         }
     }

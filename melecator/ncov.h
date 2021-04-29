@@ -22,10 +22,12 @@ public slots:
     void request_data(const QString &province);
     static inline void set_url(const QString &url) { Ncov::url = url; }
 
-private:
-    Q_OBJECT
+protected:
     static QJsonValue capital_data, province_data;
     static QString url;
+
+private:
+    Q_OBJECT
 
 signals:
     void ncovAvailable();
