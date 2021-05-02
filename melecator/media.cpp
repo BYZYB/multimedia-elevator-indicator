@@ -5,6 +5,7 @@ QList<QUrl> Media::url;
 // Get the absolute path of each media file in a specific directory
 void Media::read_file(const QString &path) {
     const auto list = QDir(path).entryList({"*.avi", "*.mp4"}, QDir::Files, QDir::Name);
+    url.clear();
 
     // Read all media files in this directory
     for (auto iterator = list.constBegin(); iterator != list.constEnd(); ++iterator) {

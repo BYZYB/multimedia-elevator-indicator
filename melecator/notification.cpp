@@ -33,6 +33,7 @@ QString Notification::get_data_merged() {
 // Read all notification files (*.txt) in a specific directory
 void Notification::read_file(const QString &path) {
     const auto list = QDir(path).entryList({"*.txt"}, QDir::Files, QDir::Name);
+    data.clear();
 
     // Read all files in this directory
     for (auto iterator = list.constBegin(); iterator != list.constEnd(); ++iterator) {

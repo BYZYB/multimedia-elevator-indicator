@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
 
 Window {
-    id: window_0
+    id: window_root
 
     property string city: "广州市"
     property int client_floor: 1
@@ -129,9 +129,11 @@ Window {
             button_upstairs.enabled = client_floor === floor_max ? false : true
             client_floor = spinbox_elevator_client_floor.value
             image_elevator_direction.source = side === 1 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
+            progressbar_elevator_next_stop.value = 0
             text_elevator_capacity.text = is_capacity_accurate ? "0%" : "正常"
             text_elevator_direction.text = side === 1 ? "左侧停靠" : side === 2 ? "右侧停靠" : "电梯停靠"
             text_elevator_floor.text = floor_min
+            text_elevator_next_stop.text = "…"
             text_elevator_time_remain.text = "0 秒"
         }
     }
@@ -1615,10 +1617,6 @@ Window {
                 from: background_notification.width
                 loops: Animation.Infinite
                 to: -text_notification.width
-
-                onDurationChanged: {
-                    restart()
-                }
             }
         }
 
@@ -1728,9 +1726,9 @@ Window {
                     id: spinbox_elevator_setting_0_0
 
                     editable: true
-                    from: window_0.minimumHeight
+                    from: window_root.minimumHeight
                     to: 2160
-                    value: window_0.height
+                    value: window_root.height
                     width: parent.width
                 }
 
@@ -1743,9 +1741,9 @@ Window {
                     id: spinbox_elevator_setting_0_1
 
                     editable: true
-                    from: window_0.minimumWidth
+                    from: window_root.minimumWidth
                     to: 3840
-                    value: window_0.width
+                    value: window_root.width
                     width: parent.width
                 }
 
@@ -2009,25 +2007,91 @@ Window {
         }
 
         onAccepted: {
-            city = textfield_elevator_setting_2_1.length ? textfield_elevator_setting_2_1.text : "广州市"
-            client_name = textfield_elevator_setting_0_2.length ? textfield_elevator_setting_0_2.text : "--"
-            floor_max = spinbox_elevator_setting_3_0.value
-            floor_min = spinbox_elevator_setting_3_1.value
-            is_capacity_accurate = combobox_elevator_setting_3_3.currentIndex
-            is_playback_random = combobox_elevator_setting_1_0.currentIndex
-            notification_speed = slider__elevator_setting_2_2.value
-            path_media = textfield_elevator_setting_1_1.length ? textfield_elevator_setting_1_1.text : path_media_default
-            path_notification = textfield_elevator_setting_2_3.length ? textfield_elevator_setting_2_3.text : path_notification_default
-            province = textfield_elevator_setting_2_0.length ? textfield_elevator_setting_2_0.text : "广东省"
-            side = combobox_elevator_setting_3_2.currentIndex
-            time_door_move = spinbox_elevator_setting_3_4.value
-            time_next_floor = spinbox_elevator_setting_3_5.value
-            time_stop = spinbox_elevator_setting_3_6.value
-            url_ncov = textfield_elevator_setting_2_6.length ? textfield_elevator_setting_2_6.text : url_ncov_default
-            url_weather_current = textfield_elevator_setting_2_4.length ? textfield_elevator_setting_2_4.text : url_weather_current_default
-            url_weather_forecast = textfield_elevator_setting_2_5.length ? textfield_elevator_setting_2_5.text : url_weather_forecast_default
-            window_0.height = spinbox_elevator_setting_0_0.value
-            window_0.width = spinbox_elevator_setting_0_1.value
+            if (city !== textfield_elevator_setting_2_1.text) {
+                city = textfield_elevator_setting_2_1.length ? textfield_elevator_setting_2_1.text : "广州市"
+                timer_weather.restart()
+            }
+
+            if (client_name !== textfield_elevator_setting_0_2.text) {
+                client_name = textfield_elevator_setting_0_2.length ? textfield_elevator_setting_0_2.text : "--"
+            }
+
+            if (floor_max !== spinbox_elevator_setting_3_0.value) {
+                floor_max = spinbox_elevator_setting_3_0.value
+            }
+
+            if (floor_min !== spinbox_elevator_setting_3_1.value) {
+                floor_min = spinbox_elevator_setting_3_1.value
+            }
+
+            if (is_capacity_accurate !== combobox_elevator_setting_3_3.currentIndex) {
+                is_capacity_accurate = combobox_elevator_setting_3_3.currentIndex
+            }
+
+            if (is_playback_random !== combobox_elevator_setting_1_0.currentIndex) {
+                is_playback_random = combobox_elevator_setting_1_0.currentIndex
+            }
+
+            if (notification_speed !== slider__elevator_setting_2_2.value) {
+                notification_speed = slider__elevator_setting_2_2.value
+                animation_text_notification.restart()
+            }
+
+            if (path_media !== textfield_elevator_setting_1_1.text) {
+                path_media = textfield_elevator_setting_1_1.length ? textfield_elevator_setting_1_1.text : path_media_default
+                timer_media.restart()
+            }
+
+            if (path_notification !== textfield_elevator_setting_2_3.text) {
+                path_notification = textfield_elevator_setting_2_3.length ? textfield_elevator_setting_2_3.text : path_notification_default
+                timer_notification.restart()
+                animation_text_notification.restart()
+            }
+
+            if (province !== textfield_elevator_setting_2_0.text) {
+                province = textfield_elevator_setting_2_0.length ? textfield_elevator_setting_2_0.text : "广东省"
+                timer_ncov.restart()
+            }
+
+            if (side !== combobox_elevator_setting_3_2.currentIndex) {
+                side = combobox_elevator_setting_3_2.currentIndex
+            }
+
+            if (time_door_move !== spinbox_elevator_setting_3_4.value) {
+                time_door_move = spinbox_elevator_setting_3_4.value
+            }
+
+            if (time_next_floor !== spinbox_elevator_setting_3_5.value) {
+                time_next_floor = spinbox_elevator_setting_3_5.value
+            }
+
+            if (time_stop !== spinbox_elevator_setting_3_6.value) {
+                time_stop = spinbox_elevator_setting_3_6.value
+            }
+
+            if (url_ncov !== textfield_elevator_setting_2_6.text) {
+                url_ncov = textfield_elevator_setting_2_6.length ? textfield_elevator_setting_2_6.text : url_ncov_default
+                timer_ncov.restart()
+            }
+
+            if (url_weather_current !== textfield_elevator_setting_2_4.text) {
+                url_weather_current = textfield_elevator_setting_2_4.length ? textfield_elevator_setting_2_4.text : url_weather_current_default
+                timer_weather.restart()
+            }
+
+            if (url_weather_forecast !== textfield_elevator_setting_2_5.text) {
+                url_weather_forecast = textfield_elevator_setting_2_5.length ? textfield_elevator_setting_2_5.text : url_weather_forecast_default
+                timer_weather.restart()
+            }
+
+            if (window_root.height !== spinbox_elevator_setting_0_0.value) {
+                window_root.height = spinbox_elevator_setting_0_0.value
+            }
+
+            if (window_root.width !== spinbox_elevator_setting_0_1.value) {
+                window_root.width = spinbox_elevator_setting_0_1.value
+            }
+
             Elevator.start(floor_max, floor_min, time_door_move,
                            time_next_floor, time_stop)
         }
