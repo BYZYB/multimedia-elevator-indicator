@@ -218,29 +218,50 @@ Window {
     }
 
     Connections {
+        property var weather_current
+        property var weather_forecast
+
         target: Weather
 
-        function onWeatherAvailable() {
-            var weather_current = Weather.get_current_data(
-                        ), weather_forecast = Weather.get_forecast_data(
-                               ), weather_forecast_0 = weather_forecast[0], weather_forecast_0_daytemp = weather_forecast_0["daytemp"], weather_forecast_0_nighttemp = weather_forecast_0["nighttemp"], weather_forecast_1 = weather_forecast[1], weather_forecast_2 = weather_forecast[2], weather_forecast_3 = weather_forecast[3]
+        function onWeatherCurrentAvailable() {
+            weather_current = Weather.get_current_data()
+
+            if (weather_forecast) {
+                text_weather_current_title.text = weather_current["weather"]
+                        + " | " + weather_forecast[0]["nighttemp"] + "°~"
+                        + weather_forecast[0]["daytemp"] + "° | " + weather_current["winddirection"]
+            } else {
+                text_weather_current_title.text = weather_current["weather"]
+                        + " | " + weather_current["winddirection"] + "风"
+            }
+
             image_weather_current.source = Weather.get_image_url(false)
             image_weather_current_humidity.visible = image_weather_current_windpower.visible = true
+            text_weather_current_city.text = weather_current["city"]
+            text_weather_current_humidity.text = weather_current["humidity"] + "%"
+            text_weather_current_realtime.text = weather_current["temperature"]
+            text_weather_current_windpower.text = weather_current["windpower"] + " 级"
+            indicator_weather.running = false
+        }
+
+        function onWeatherForecastAvailable() {
+            weather_forecast = Weather.get_forecast_data()
+            var weather_forecast_0 = weather_forecast[0], weather_forecast_1 = weather_forecast[1], weather_forecast_2 = weather_forecast[2], weather_forecast_3 = weather_forecast[3]
+
+            if (weather_current) {
+                text_weather_current_title.text = weather_current["weather"]
+                        + " | " + weather_forecast_0["nighttemp"] + "°~"
+                        + weather_forecast_0["daytemp"] + "° | " + weather_current["winddirection"]
+            }
+
             image_weather_forecast_0.source = Weather.get_image_url(true, 0)
             image_weather_forecast_1.source = Weather.get_image_url(true, 1)
             image_weather_forecast_2.source = Weather.get_image_url(true, 2)
             image_weather_forecast_3.source = Weather.get_image_url(true, 3)
-            text_weather_current_city.text = weather_current["city"]
-            text_weather_current_humidity.text = weather_current["humidity"] + "%"
-            text_weather_current_realtime.text = weather_current["temperature"]
-            text_weather_current_title.text = weather_current["weather"] + " | "
-                    + weather_forecast_0_nighttemp + "°~" + weather_forecast_0_daytemp
-                    + "° | " + weather_current["winddirection"]
-            text_weather_current_windpower.text = weather_current["windpower"] + " 级"
             text_weather_forecast_0_date.text = Weather.get_day_name(
                         weather_forecast_0["week"])
-            text_weather_forecast_0_temperature.text = weather_forecast_0_nighttemp
-                    + "°~" + weather_forecast_0_daytemp + "°"
+            text_weather_forecast_0_temperature.text = weather_forecast_0["nighttemp"]
+                    + "°~" + weather_forecast_0["daytemp"] + "°"
             text_weather_forecast_1_date.text = Weather.get_day_name(
                         weather_forecast_1["week"])
             text_weather_forecast_1_temperature.text = weather_forecast_1["nighttemp"]
@@ -256,14 +277,23 @@ Window {
             indicator_weather.running = false
         }
 
-        function onWeatherUnavailable() {
-            image_weather_current.source = image_weather_forecast_0.source
-                    = image_weather_forecast_1.source = image_weather_forecast_2.source
-                    = image_weather_forecast_3.source = "qrc:/res/icons/weather/cloudy-alert.svg"
+        function onWeatherCurrentUnavailable() {
+            weather_current = null
+            image_weather_current.source = "qrc:/res/icons/weather/cloudy-alert.svg"
             image_weather_current_humidity.visible = image_weather_current_windpower.visible = false
             text_weather_current_city.text = "无数据"
-            text_weather_current_title.text = text_weather_current_realtime.text
-                    = text_weather_current_humidity.text = text_weather_current_windpower.text = ""
+            text_weather_current_realtime.text = text_weather_current_humidity.text
+                    = text_weather_current_windpower.text = ""
+            text_weather_current_title.text = "⚠ 实时天气不可用"
+            indicator_weather.running = false
+            dialog_weather.open()
+        }
+
+        function onWeatherForecastUnavailable() {
+            weather_forecast = null
+            image_weather_forecast_0.source = image_weather_forecast_1.source
+                    = image_weather_forecast_2.source = image_weather_forecast_3.source
+                    = "qrc:/res/icons/weather/cloudy-alert.svg"
             text_weather_forecast_0_date.text = text_weather_forecast_1_date.text
                     = text_weather_forecast_2_date.text = text_weather_forecast_3_date.text = "--"
             text_weather_forecast_0_temperature.text = text_weather_forecast_1_temperature.text
@@ -277,16 +307,12 @@ Window {
     Rectangle {
         id: background_media
 
-        anchors {
-            left: parent.left
-            leftMargin: 16
-            top: parent.top
-            topMargin: 16
-        }
         color: "#80000000"
         height: parent.height - background_datetime.height - background_weather.height - 48
         radius: 8
         width: parent.width * 2 / 3 - 32
+        x: 16
+        y: 16
 
         Video {
             id: video_media

@@ -1,7 +1,6 @@
 #ifndef NCOV_H
 #define NCOV_H
 
-#include <QEventLoop>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -25,6 +24,10 @@ public slots:
 protected:
     static QJsonValue capital_data, province_data;
     static QString url;
+    QNetworkReply *reply;
+
+protected slots:
+    void ncovRequestCompleted();
 
 private:
     Q_OBJECT

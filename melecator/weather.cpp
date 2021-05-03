@@ -34,7 +34,7 @@ QUrl Weather::get_image_url(const bool &is_forecast, const qint32 &day) {
 #ifndef QT_NO_DEBUG
         qWarning() << "[E] Empty weather phenomenon, the weather data might be broken.";
 #endif
-        emit weatherUnavailable();
+        is_forecast ? emit weatherForecastUnavailable() : emit weatherCurrentUnavailable();
         return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
     } else { // Other weather phenomenon
 #ifndef QT_NO_DEBUG
@@ -44,24 +44,42 @@ QUrl Weather::get_image_url(const bool &is_forecast, const qint32 &day) {
     }
 }
 
-// Request the weather data of a specific city using AMAP weather API (in JSON format)
-void Weather::request_data(const QString &city) {
-    QEventLoop loop;
-    QNetworkAccessManager manager;
-    const QNetworkRequest request_current(url_current + city), request_forecast(url_forecast + city);
-    auto *reply_current = manager.get(request_current), *reply_forecast = manager.get(request_forecast);
-
-    connect(reply_forecast, SIGNAL(finished()), &loop, SLOT(quit()));
-    loop.exec();
-
-    if (reply_current->error() || reply_forecast->error()) { // Error happened during network request
+// Check if the network reply of current weather data is available, then save the data or emit error signal
+void Weather::weatherCurrentRequestCompleted() {
+    if (reply_current->error()) { // Error happened during network request
 #ifndef QT_NO_DEBUG
-        qWarning() << "[E] Failed to get weather data for:" << city;
+        qWarning() << "[E] Failed to get current weather data, please check your internet connection and try again.";
 #endif
-        emit weatherUnavailable();
+        emit weatherCurrentUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON documents
         current_data = QJsonDocument::fromJson(reply_current->readAll())["lives"][0];
-        forecast_data = QJsonDocument::fromJson(reply_forecast->readAll())["forecasts"][0]["casts"];
-        emit weatherAvailable();
+        emit weatherCurrentAvailable();
     }
+
+    reply_current->deleteLater();
+}
+
+// Check if the network reply of weather forecast data is available, then save the data or emit error signal
+void Weather::weatherForecastRequestCompleted() {
+    if (reply_forecast->error()) { // Error happened during network request
+#ifndef QT_NO_DEBUG
+        qWarning() << "[E] Failed to get weather forecast data, please check your internet connection and try again.";
+#endif
+        emit weatherForecastUnavailable();
+    } else { // Successfully got reply from remote server, save them to JSON documents
+        forecast_data = QJsonDocument::fromJson(reply_forecast->readAll())["forecasts"][0]["casts"];
+        emit weatherForecastAvailable();
+    }
+
+    reply_forecast->deleteLater();
+}
+
+// Request the weather data of a specific city using AMAP weather API (in JSON format)
+void Weather::request_data(const QString &city) {
+    const QNetworkRequest request_current(url_current + city), request_forecast(url_forecast + city);
+    current_data = forecast_data = QJsonValue();
+    reply_current = (new QNetworkAccessManager)->get(request_current);
+    reply_forecast = (new QNetworkAccessManager)->get(request_forecast);
+    connect(reply_current, &QNetworkReply::finished, this, &Weather::weatherCurrentRequestCompleted);
+    connect(reply_forecast, &QNetworkReply::finished, this, &Weather::weatherForecastRequestCompleted);
 }

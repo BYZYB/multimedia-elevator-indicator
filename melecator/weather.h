@@ -1,7 +1,6 @@
 #ifndef WEATHER_H
 #define WEATHER_H
 
-#include <QEventLoop>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -49,13 +48,20 @@ public slots:
 protected:
     static QJsonValue current_data, forecast_data;
     static QString url_current, url_forecast;
+    QNetworkReply *reply_current, *reply_forecast;
+
+protected slots:
+    void weatherCurrentRequestCompleted();
+    void weatherForecastRequestCompleted();
 
 private:
     Q_OBJECT
 
 signals:
-    void weatherAvailable();
-    void weatherUnavailable();
+    void weatherCurrentAvailable();
+    void weatherCurrentUnavailable();
+    void weatherForecastAvailable();
+    void weatherForecastUnavailable();
 };
 
 #endif // WEATHER_H
