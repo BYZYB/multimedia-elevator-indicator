@@ -70,7 +70,8 @@ void Elevator::process() {
                 time_remain <= 0 ? time_remain = 0 : --time_remain;
                 emit elevatorTimeRemainUpdate();
             } else {
-                if (direction_planned == DIRECTION_DOWN) {
+                switch (direction_planned) {
+                case DIRECTION_DOWN:
                     if (floor_current == floor_min) {
                         capacity = progress = slice = time_remain = 0;
                         direction_planned = DIRECTION_UP;
@@ -87,7 +88,9 @@ void Elevator::process() {
                     }
 
                     is_door_open = is_next_stop_down[floor_current] = false;
-                } else if (direction_planned == DIRECTION_UP) {
+                    break;
+
+                case DIRECTION_UP:
                     if (floor_current == floor_max) {
                         direction_planned = direction_current = DIRECTION_DOWN;
                     } else {
@@ -95,6 +98,7 @@ void Elevator::process() {
                     }
 
                     is_door_open = is_next_stop_up[floor_current] = false;
+                    break;
                 }
 
                 capacity = 5 * QRandomGenerator::global()->bounded(20);
@@ -167,10 +171,10 @@ void Elevator::process() {
         if (is_next_stop_up.at(0)) {
             if (floor_current == floor_max && !is_next_stop_down.at(floor_max)) {
 #ifndef QT_NO_DEBUG
-                qDebug() << "[D] Elevator has reached max floor, going down back to min floor: " << floor_min << ", current floor:" << floor_current;
+                qDebug() << "[D] Elevator has reached max floor, going down back to default floor: " << DEFAULT_FLOOR << ", current floor:" << floor_current;
 #endif
                 direction_planned = direction_current = DIRECTION_DOWN;
-                update_next_stop_down(floor_min);
+                update_next_stop_down(DEFAULT_FLOOR);
                 emit elevatorDirectionUpdate();
             } else if (slice < time_next_floor - 1) {
 #ifndef QT_NO_DEBUG

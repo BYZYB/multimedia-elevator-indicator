@@ -27,7 +27,7 @@ SOURCES += \
 RESOURCES += \
     app.qrc
 
-VERSION = 0.7.6
+VERSION = 0.7.7
 
 windows {
     RC_ICONS = res/icons/app_icon.ico

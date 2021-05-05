@@ -30,7 +30,10 @@ Window {
     property string url_weather_current: url_weather_current_default
     readonly property string url_weather_forecast_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&extensions=all&city="
     property string url_weather_forecast: url_weather_forecast_default
+    property int window_flags: 0
 
+    maximumHeight: Screen.height
+    maximumWidth: Screen.width
     minimumHeight: 720
     minimumWidth: 1280
     title: "Melecator"
@@ -127,7 +130,7 @@ Window {
             button_downstairs.highlighted = button_upstairs.highlighted = false
             button_elevator_client_floor.enabled = true
             button_upstairs.enabled = client_floor === floor_max ? false : true
-            client_floor = spinbox_elevator_client_floor.value
+            client_floor = spinbox_elevator_client_floor_0.value
             image_elevator_direction.source = side === 1 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
             progressbar_elevator_next_stop.value = 0
             text_elevator_capacity.text = is_capacity_accurate ? "0%" : "正常"
@@ -1668,7 +1671,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: parent.height / 3
+        height: parent.height * 2 / 3
         modal: true
         standardButtons: Dialog.Cancel | Dialog.Ok
         title: "⚙ 楼层信息"
@@ -1684,7 +1687,7 @@ Window {
             }
 
             SpinBox {
-                id: spinbox_elevator_client_floor
+                id: spinbox_elevator_client_floor_0
 
                 editable: true
                 from: floor_min
@@ -1692,17 +1695,34 @@ Window {
                 value: client_floor
                 width: parent.width
             }
+
+            Text {
+                font.weight: Font.Medium
+                text: "自定义电梯名称"
+            }
+
+            TextField {
+                id: textfield_elevator_client_floor_1
+
+                placeholderText: "未命名"
+                text: client_name
+                width: parent.width
+            }
         }
 
         onAccepted: {
-            if (client_floor !== spinbox_elevator_client_floor.value) {
-                client_floor = spinbox_elevator_client_floor.value
+            if (client_floor !== spinbox_elevator_client_floor_0.value) {
+                client_floor = spinbox_elevator_client_floor_0.value
                 button_downstairs.enabled = client_floor === floor_min ? false : true
                 button_downstairs.highlighted = Elevator.get_is_next_stop_down(
                             client_floor) ? true : false
                 button_upstairs.enabled = client_floor === floor_max ? false : true
                 button_upstairs.highlighted = Elevator.get_is_next_stop_up(
                             client_floor) ? true : false
+            }
+
+            if (client_name !== textfield_elevator_client_floor_1.text) {
+                client_name = textfield_elevator_client_floor_1.length ? textfield_elevator_client_floor_1.text : "--"
             }
         }
     }
@@ -1731,7 +1751,7 @@ Window {
                 text: "🕹 模拟电梯"
             }
         }
-        height: parent.height * 2 / 3
+        height: dialog_elevator_client_floor.height
         modal: true
         standardButtons: dialog_elevator_client_floor.standardButtons
         width: dialog_elevator_client_floor.width
@@ -1745,7 +1765,7 @@ Window {
 
                 Text {
                     font.weight: Font.Medium
-                    text: "窗口高度"
+                    text: "界面高度"
                 }
 
                 SpinBox {
@@ -1753,14 +1773,14 @@ Window {
 
                     editable: true
                     from: window_root.minimumHeight
-                    to: 2160
+                    to: window_root.maximumHeight
                     value: window_root.height
                     width: parent.width
                 }
 
                 Text {
                     font.weight: Font.Medium
-                    text: "窗口宽度"
+                    text: "界面宽度"
                 }
 
                 SpinBox {
@@ -1768,21 +1788,21 @@ Window {
 
                     editable: true
                     from: window_root.minimumWidth
-                    to: 3840
+                    to: window_root.maximumWidth
                     value: window_root.width
                     width: parent.width
                 }
 
                 Text {
                     font.weight: Font.Medium
-                    text: "自定义电梯名称"
+                    text: "窗口模式"
                 }
 
-                TextField {
-                    id: textfield_elevator_setting_0_2
+                ComboBox {
+                    id: combobox_elevator_setting_0_2
 
-                    placeholderText: "未命名"
-                    text: client_name
+                    currentIndex: window_flags
+                    model: ["窗口化", "无边框", "全屏幕"]
                     width: parent.width
                 }
             }
@@ -2038,10 +2058,6 @@ Window {
                 timer_weather.restart()
             }
 
-            if (client_name !== textfield_elevator_setting_0_2.text) {
-                client_name = textfield_elevator_setting_0_2.length ? textfield_elevator_setting_0_2.text : "--"
-            }
-
             if (floor_max !== spinbox_elevator_setting_3_0.value) {
                 floor_max = spinbox_elevator_setting_3_0.value
             }
@@ -2112,10 +2128,56 @@ Window {
 
             if (window_root.height !== spinbox_elevator_setting_0_0.value) {
                 window_root.height = spinbox_elevator_setting_0_0.value
+
+                if (window_flags === 1) {
+                    window_root.setGeometry(
+                                (window_root.maximumWidth - window_root.width) / 2,
+                                (window_root.maximumHeight - window_root.height) / 2,
+                                window_root.width, window_root.height)
+                }
             }
 
             if (window_root.width !== spinbox_elevator_setting_0_1.value) {
                 window_root.width = spinbox_elevator_setting_0_1.value
+
+                if (window_flags === 1) {
+                    window_root.setGeometry(
+                                (window_root.maximumWidth - window_root.width) / 2,
+                                (window_root.maximumHeight - window_root.height) / 2,
+                                window_root.width, window_root.height)
+                }
+            }
+
+            if (window_flags !== combobox_elevator_setting_0_2.currentIndex) {
+                window_flags = combobox_elevator_setting_0_2.currentIndex
+
+                switch (window_flags) {
+                case 0:
+                    window_root.flags = Qt.Window
+                    window_root.height = window_root.minimumHeight = 720
+                    window_root.width = window_root.minimumWidth = 1280
+                    window_root.setGeometry(
+                                (window_root.maximumWidth - window_root.width) / 2,
+                                (window_root.maximumHeight - window_root.height) / 2,
+                                window_root.width, window_root.height)
+                    break
+                case 1:
+                    window_root.flags = Qt.FramelessWindowHint | Qt.Window
+                    window_root.height = window_root.minimumHeight = 720
+                    window_root.width = window_root.minimumWidth = 1280
+                    window_root.setGeometry(
+                                (window_root.maximumWidth - window_root.width) / 2,
+                                (window_root.maximumHeight - window_root.height) / 2,
+                                window_root.width, window_root.height)
+                    break
+                case 2:
+                    window_root.flags = Qt.FramelessWindowHint
+                    window_root.height = window_root.minimumHeight = window_root.maximumHeight
+                    window_root.width = window_root.minimumWidth = window_root.maximumWidth
+                    window_root.setGeometry(0, 0, window_root.width,
+                                            window_root.height)
+                    break
+                }
             }
 
             Elevator.start(floor_max, floor_min, time_door_move,
@@ -2128,7 +2190,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: dialog_elevator_client_floor.height
+        height: parent.height / 3
         modal: true
         standardButtons: Dialog.Cancel | Dialog.Retry
         title: "⚠ 错误"
@@ -2154,7 +2216,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: dialog_elevator_client_floor.height
+        height: dialog_media.height
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
@@ -2180,7 +2242,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: dialog_elevator_client_floor.height
+        height: dialog_media.height
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
@@ -2206,7 +2268,7 @@ Window {
 
         anchors.centerIn: parent
         focus: true
-        height: dialog_elevator_client_floor.height
+        height: dialog_media.height
         modal: true
         standardButtons: dialog_media.standardButtons
         title: "⚠ 错误"
