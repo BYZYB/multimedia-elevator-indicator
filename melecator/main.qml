@@ -12,15 +12,19 @@ Window {
     property string client_name: "客梯"
     property int floor_max: 12
     property int floor_min: 1
-    property bool is_capacity_accurate: true
-    property bool is_playback_random: true
+    property int interval_media: 3600000
+    property int interval_ncov: 21600000
+    property int interval_notification: 3600000
+    property int interval_weather: 3600000
+    property int mode_capacity: 1
+    property int mode_playback: 1
+    property int mode_side: 1
     property int notification_speed: 60000
     readonly property string path_media_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/videos/" : "/../test_data/videos/")
     property string path_media: path_media_default
     readonly property string path_notification_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/notifications/" : "/../test_data/notifications/")
     property string path_notification: path_notification_default
     property string province: "广东省"
-    property int side: 1
     property int time_door_move: 3
     property int time_next_floor: 3
     property int time_stop: 5
@@ -43,7 +47,7 @@ Window {
         target: Elevator
 
         function onElevatorCapacityUpdate() {
-            if (is_capacity_accurate) {
+            if (mode_capacity === 1) {
                 text_elevator_capacity.text = Elevator.get_capacity() + "%"
             } else {
                 text_elevator_capacity.text = Elevator.get_capacity(
@@ -54,7 +58,7 @@ Window {
         function onElevatorDirectionUpdate() {
             switch (Elevator.get_direction_current()) {
             case 0:
-                switch (side) {
+                switch (mode_side) {
                 case 0:
                     image_elevator_direction.source = "qrc:/res/icons/elevator/stop-right.svg"
                     text_elevator_direction.text = "电梯停靠"
@@ -131,10 +135,12 @@ Window {
             button_elevator_client_floor.enabled = true
             button_upstairs.enabled = client_floor === floor_max ? false : true
             client_floor = spinbox_elevator_client_floor_0.value
-            image_elevator_direction.source = side === 1 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
+            image_elevator_direction.source = mode_side
+                    === 1 ? "qrc:/res/icons/elevator/stop-left.svg" : "qrc:/res/icons/elevator/stop-right.svg"
             progressbar_elevator_next_stop.value = 0
-            text_elevator_capacity.text = is_capacity_accurate ? "0%" : "正常"
-            text_elevator_direction.text = side === 1 ? "左侧停靠" : side === 2 ? "右侧停靠" : "电梯停靠"
+            text_elevator_capacity.text = mode_capacity === 1 ? "0%" : "正常"
+            text_elevator_direction.text = mode_side
+                    === 1 ? "左侧停靠" : mode_side === 2 ? "右侧停靠" : "电梯停靠"
             text_elevator_floor.text = floor_min
             text_elevator_next_stop.text = "…"
             text_elevator_time_remain.text = "0 秒"
@@ -325,7 +331,7 @@ Window {
             playlist: Playlist {
                 id: list_media
 
-                playbackMode: is_playback_random ? Playlist.Random : Playlist.Loop
+                playbackMode: mode_playback === 1 ? Playlist.Random : Playlist.Loop
 
                 onCurrentIndexChanged: {
                     animation_video_media.start()
@@ -423,7 +429,7 @@ Window {
         Timer {
             id: timer_media
 
-            interval: 3600000
+            interval: interval_media
             repeat: true
             triggeredOnStart: true
 
@@ -782,7 +788,7 @@ Window {
         Timer {
             id: timer_weather
 
-            interval: 3600000
+            interval: interval_weather
             repeat: true
             triggeredOnStart: true
 
@@ -1204,7 +1210,7 @@ Window {
         Timer {
             id: timer_ncov
 
-            interval: 21600000
+            interval: interval_ncov
             repeat: true
             triggeredOnStart: true
 
@@ -1652,7 +1658,7 @@ Window {
         Timer {
             id: timer_notification
 
-            interval: 3600000
+            interval: interval_notification
             repeat: true
             triggeredOnStart: true
 
@@ -1765,7 +1771,7 @@ Window {
 
                 Text {
                     font.weight: Font.Medium
-                    text: "界面高度"
+                    text: "界面高度（像素）"
                 }
 
                 SpinBox {
@@ -1780,7 +1786,7 @@ Window {
 
                 Text {
                     font.weight: Font.Medium
-                    text: "界面宽度"
+                    text: "界面宽度（像素）"
                 }
 
                 SpinBox {
@@ -1818,8 +1824,23 @@ Window {
                 ComboBox {
                     id: combobox_elevator_setting_1_0
 
-                    currentIndex: is_playback_random
+                    currentIndex: mode_playback
                     model: ["列表循环", "随机播放"]
+                    width: parent.width
+                }
+
+                Text {
+                    font.weight: Font.Medium
+                    text: "更新时间（分钟）"
+                }
+
+                SpinBox {
+                    id: spinbox_elevator_setting_1_1
+
+                    editable: true
+                    from: 1
+                    to: 1440
+                    value: interval_media / 60000
                     width: parent.width
                 }
 
@@ -1829,7 +1850,7 @@ Window {
                 }
 
                 TextField {
-                    id: textfield_elevator_setting_1_1
+                    id: textfield_elevator_setting_1_2
 
                     placeholderText: path_media_default
                     text: path_media
@@ -1874,15 +1895,60 @@ Window {
 
                     Text {
                         font.weight: Font.Medium
+                        text: "天气更新时间（分钟）"
+                    }
+
+                    SpinBox {
+                        id: spinbox_elevator_setting_2_2
+
+                        editable: true
+                        from: 1
+                        to: 1440
+                        value: interval_weather / 60000
+                        width: parent.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "通知更新时间（分钟）"
+                    }
+
+                    SpinBox {
+                        id: spinbox_elevator_setting_2_3
+
+                        editable: true
+                        from: 1
+                        to: 1440
+                        value: interval_notification / 60000
+                        width: parent.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "疫情信息更新时间（分钟）"
+                    }
+
+                    SpinBox {
+                        id: spinbox_elevator_setting_2_4
+
+                        editable: true
+                        from: 1
+                        to: 1440
+                        value: interval_ncov / 60000
+                        width: parent.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
                         text: "通知滚动速度"
                     }
 
                     Slider {
-                        id: slider__elevator_setting_2_2
+                        id: textfield_elevator_setting_2_5
 
                         from: 120000
                         to: 30000
-                        stepSize: 5000
+                        stepSize: 3000
                         value: notification_speed
                         width: scrollview_elevator_setting_2.width
                     }
@@ -1893,7 +1959,7 @@ Window {
                     }
 
                     TextField {
-                        id: textfield_elevator_setting_2_3
+                        id: textfield_elevator_setting_2_6
 
                         placeholderText: path_notification_default
                         text: path_notification
@@ -1906,7 +1972,7 @@ Window {
                     }
 
                     TextField {
-                        id: textfield_elevator_setting_2_4
+                        id: textfield_elevator_setting_2_7
 
                         placeholderText: url_weather_current_default
                         text: url_weather_current
@@ -1919,7 +1985,7 @@ Window {
                     }
 
                     TextField {
-                        id: textfield_elevator_setting_2_5
+                        id: textfield_elevator_setting_2_8
 
                         placeholderText: url_weather_forecast_default
                         text: url_weather_forecast
@@ -1932,7 +1998,7 @@ Window {
                     }
 
                     TextField {
-                        id: textfield_elevator_setting_2_6
+                        id: textfield_elevator_setting_2_9
 
                         placeholderText: url_ncov_default
                         text: url_ncov
@@ -1986,7 +2052,7 @@ Window {
                     ComboBox {
                         id: combobox_elevator_setting_3_2
 
-                        currentIndex: side
+                        currentIndex: mode_side
                         model: ["隐藏", "左侧", "右侧"]
                         width: scrollview_elevator_setting_2.width
                     }
@@ -1999,14 +2065,14 @@ Window {
                     ComboBox {
                         id: combobox_elevator_setting_3_3
 
-                        currentIndex: is_capacity_accurate
+                        currentIndex: mode_capacity
                         model: ["标准", "精确"]
                         width: scrollview_elevator_setting_2.width
                     }
 
                     Text {
                         font.weight: Font.Medium
-                        text: "轿厢门开关所需时间"
+                        text: "轿厢门开关所需时间（秒）"
                     }
 
                     SpinBox {
@@ -2021,7 +2087,7 @@ Window {
 
                     Text {
                         font.weight: Font.Medium
-                        text: "电梯前往新楼层所需时间"
+                        text: "电梯前往新楼层所需时间（秒）"
                     }
 
                     SpinBox {
@@ -2036,7 +2102,7 @@ Window {
 
                     Text {
                         font.weight: Font.Medium
-                        text: "电梯在各楼层停留所需时间"
+                        text: "电梯在各楼层停留所需时间（秒）"
                     }
 
                     SpinBox {
@@ -2066,26 +2132,46 @@ Window {
                 floor_min = spinbox_elevator_setting_3_1.value
             }
 
-            if (is_capacity_accurate !== combobox_elevator_setting_3_3.currentIndex) {
-                is_capacity_accurate = combobox_elevator_setting_3_3.currentIndex
-            }
-
-            if (is_playback_random !== combobox_elevator_setting_1_0.currentIndex) {
-                is_playback_random = combobox_elevator_setting_1_0.currentIndex
-            }
-
-            if (notification_speed !== slider__elevator_setting_2_2.value) {
-                notification_speed = slider__elevator_setting_2_2.value
-                animation_text_notification.restart()
-            }
-
-            if (path_media !== textfield_elevator_setting_1_1.text) {
-                path_media = textfield_elevator_setting_1_1.length ? textfield_elevator_setting_1_1.text : path_media_default
+            if (interval_media !== spinbox_elevator_setting_1_1.value * 60000) {
+                interval_media = spinbox_elevator_setting_1_1.value * 60000
                 timer_media.restart()
             }
 
-            if (path_notification !== textfield_elevator_setting_2_3.text) {
-                path_notification = textfield_elevator_setting_2_3.length ? textfield_elevator_setting_2_3.text : path_notification_default
+            if (interval_ncov !== spinbox_elevator_setting_2_4.value * 60000) {
+                interval_ncov = spinbox_elevator_setting_2_4.value * 60000
+                timer_ncov.restart()
+            }
+
+            if (interval_notification !== spinbox_elevator_setting_2_3.value * 60000) {
+                interval_notification = spinbox_elevator_setting_2_3.value * 60000
+                timer_notification.restart()
+            }
+
+            if (interval_weather !== spinbox_elevator_setting_2_2.value * 60000) {
+                interval_weather = spinbox_elevator_setting_2_2.value * 60000
+                timer_weather.restart()
+            }
+
+            if (mode_capacity !== combobox_elevator_setting_3_3.currentIndex) {
+                mode_capacity = combobox_elevator_setting_3_3.currentIndex
+            }
+
+            if (mode_playback !== combobox_elevator_setting_1_0.currentIndex) {
+                mode_playback = combobox_elevator_setting_1_0.currentIndex
+            }
+
+            if (notification_speed !== textfield_elevator_setting_2_5.value) {
+                notification_speed = textfield_elevator_setting_2_5.value
+                animation_text_notification.restart()
+            }
+
+            if (path_media !== textfield_elevator_setting_1_2.text) {
+                path_media = textfield_elevator_setting_1_2.length ? textfield_elevator_setting_1_2.text : path_media_default
+                timer_media.restart()
+            }
+
+            if (path_notification !== textfield_elevator_setting_2_6.text) {
+                path_notification = textfield_elevator_setting_2_6.length ? textfield_elevator_setting_2_6.text : path_notification_default
                 timer_notification.restart()
                 animation_text_notification.restart()
             }
@@ -2095,8 +2181,8 @@ Window {
                 timer_ncov.restart()
             }
 
-            if (side !== combobox_elevator_setting_3_2.currentIndex) {
-                side = combobox_elevator_setting_3_2.currentIndex
+            if (mode_side !== combobox_elevator_setting_3_2.currentIndex) {
+                mode_side = combobox_elevator_setting_3_2.currentIndex
             }
 
             if (time_door_move !== spinbox_elevator_setting_3_4.value) {
@@ -2111,18 +2197,18 @@ Window {
                 time_stop = spinbox_elevator_setting_3_6.value
             }
 
-            if (url_ncov !== textfield_elevator_setting_2_6.text) {
-                url_ncov = textfield_elevator_setting_2_6.length ? textfield_elevator_setting_2_6.text : url_ncov_default
+            if (url_ncov !== textfield_elevator_setting_2_9.text) {
+                url_ncov = textfield_elevator_setting_2_9.length ? textfield_elevator_setting_2_9.text : url_ncov_default
                 timer_ncov.restart()
             }
 
-            if (url_weather_current !== textfield_elevator_setting_2_4.text) {
-                url_weather_current = textfield_elevator_setting_2_4.length ? textfield_elevator_setting_2_4.text : url_weather_current_default
+            if (url_weather_current !== textfield_elevator_setting_2_7.text) {
+                url_weather_current = textfield_elevator_setting_2_7.length ? textfield_elevator_setting_2_7.text : url_weather_current_default
                 timer_weather.restart()
             }
 
-            if (url_weather_forecast !== textfield_elevator_setting_2_5.text) {
-                url_weather_forecast = textfield_elevator_setting_2_5.length ? textfield_elevator_setting_2_5.text : url_weather_forecast_default
+            if (url_weather_forecast !== textfield_elevator_setting_2_8.text) {
+                url_weather_forecast = textfield_elevator_setting_2_8.length ? textfield_elevator_setting_2_8.text : url_weather_forecast_default
                 timer_weather.restart()
             }
 
