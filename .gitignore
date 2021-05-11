@@ -32,11 +32,12 @@ build-*/
 core
 Makefile*
 moc_*.cpp
+notification*/
 qrc_*.cpp
 tags
-test_*/
 Thumbs.db
 ui_*.h
+video*/
 
 # qtcreator generated files
 *.pro.user*

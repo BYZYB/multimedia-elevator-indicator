@@ -16,7 +16,9 @@ int main(int argc, char *argv[]) {
     QQmlApplicationEngine engine;
 
     app.setFont(QFont("Noto Sans CJK SC"));
-    engine.rootContext()->setContextProperty("path_dir", app.applicationDirPath());
+#ifndef Q_OS_WIN
+    engine.rootContext()->setContextProperty("path_application_dir", app.applicationDirPath());
+#endif
     engine.rootContext()->setContextProperty("Elevator", new Elevator());
     engine.rootContext()->setContextProperty("Media", new Media());
     engine.rootContext()->setContextProperty("Ncov", new Ncov());

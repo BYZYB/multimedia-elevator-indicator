@@ -2,22 +2,26 @@
 
 ## 屏幕截图
 
-* 我的电脑（v0.7.0-x64）
-![screenshot](https://user-images.githubusercontent.com/34391595/115247502-6abf1100-a159-11eb-906b-b723df023e40.png)
-* 树莓派 4B（v0.7.0-arm64）
-![screenshot](https://user-images.githubusercontent.com/34391595/115258140-4e27d680-a163-11eb-8e6e-3cb5b8d62e42.png)
+* 我的电脑（v0.7.9-x64）
+![screenshot](https://user-images.githubusercontent.com/34391595/117824905-6fcb3800-b2a1-11eb-8747-1ee6e378ca1b.png)
+* 树莓派 4B（v0.7.9-arm64）
+![screenshot](https://user-images.githubusercontent.com/34391595/117837180-cfc6dc00-b2ab-11eb-8330-a80836aa9381.png)
 
-## 已实现功能
+## 主要功能
 
 * 跨平台支持
   * Windows 10 (x64) 可使用 `MinGW 8.1.0` 或 `MSVC 2019` 进行编译和运行
   * Linux Ubuntu 21.04 (arm64) 可使用 `GCC 10` 或 `Clang 12` 进行编译和运行
-    * X11 窗口系统：正常运行（包括 xrdp 远程桌面连接）
+    * X11 窗口系统：正常运行（支持 XRDP 远程桌面连接）
     * Wayland 窗口系统：正常运行且帧率更高
   * 所有图片资源均为矢量（SVG）格式，支持自适应常见屏幕分辨率（建议宽高比接近 `16:9`，最小分辨率为 `1280×720`）和高 DPI 缩放
-  * 对设备的 GPU 性能有一定需求，若性能较低且分辨率较高将导致显示帧率下降
+  * 对设备的 GPU 性能有一定需求（因为渲染方式与基于 OpenGL 的游戏类似），若硬件性能较低且分辨率过高将导致显示帧率下降
+    * 可降低屏幕分辨率（不建议）或降低当前播放视频的分辨率以提升性能
+    * 亦可使用“全屏幕”或“无边框”模式而不是“窗口化”，以降低绘制窗口装饰时产生的性能开销
 * 本地视频循环播放
-  * 从指定路径搜索视频文件并进行随机或循环播放
+  * 从指定路径搜索视频文件，并使用本机解码器进行随机或循环播放
+    * 由于 Qt Multimedia 直接使用系统提供的解码器播放媒体文件，因此目标操作系统需要安装适合的解码器以实现视频播放
+    * 支持符合操作系统规则且视频解码器支持的任意类型路径（本地或远程均可），请查阅 FFMpeg/GStreamer/LAVFilters 的说明文档以获取支持的路径类型及更多信息
   * 自动进行等比例缩放以避免黑边
   * 支持上一个/下一个切换
   * 在切换视频时平滑过渡
@@ -26,7 +30,7 @@
   * 实时天气（包括天气类型、温湿度、风力等）
   * 预报天气（四天内的天气概况）
 * 新冠疫情数据展示
-  * 使用来自 [BlankerL](https://github.com/BlankerL/DXY-COVID-19-Crawler) 的疫情状况数据
+  * 使用由 [BlankerL](https://github.com/BlankerL/DXY-COVID-19-Crawler) 提供的疫情状况数据
   * 本省疫情数据（现存确诊、疑似病例、已治愈和死亡数量）
   * 省会疫情数据（包括地区风险等级）
 * 时钟和滚动通知
@@ -55,19 +59,19 @@
 ## 编译和运行
 
 * 软件包和依赖
-  * Qt 版本：`5.15.2`
+  * Qt 版本：`5.15+`
   * 使用的 Qt 模块（完成 `qmake` 所需的最少数量）：`quick quickcontrols2 svg`
   * Debian/Ubuntu 软件包：`libqt5multimedia5-plugins libqt5svg5 libqt5svg5-dev qml-module-qtmultimedia qml-module-qtquick-controls2 qml-module-qtquick-window2 qt5-qmake qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev`
 * Windows
   * 使用 Qt Creator 打开本项目，根据实际情况配置构建设置后即可编译项目并运行
-  * 由于 Qt Multimedia 直接使用系统提供的解码器播放媒体文件（在 Windows 下默认使用 DirectShow），因此可能需要安装额外的 DirectShow 解码器（例如 [LAVFilters](https://github.com/Nevcairiel/LAVFilters)）以对更多媒体格式提供支持
+  * Qt Multimedia 在 Windows 下默认使用 DirectShow 进行视频播放，因此可能需要安装额外的 DirectShow 解码器（例如基于 FFMpeg 的 [LAVFilters](https://github.com/Nevcairiel/LAVFilters)）以对更多媒体格式提供支持
 * Linux
   * 在本项目的 `melecator` 目录下运行命令：`qmake && make && ./melecator`
   * 使用本项目提供的 `build.sh` 脚本完成操作（示例：`./build.sh build` 或 `./build.sh clean`）
     * 无参数：编译并运行
     * 参数 `build`：仅编译而不运行（等同于 `qmake && make -j2`）
     * 参数 `clean`：清理编译生成的所有文件（基本等同于 `make clean`）
-  * 由于 Qt Multimedia 直接使用系统提供的解码器播放媒体文件（在 Debian/Ubuntu 下默认使用 GStreamer），因此可能需要安装额外的 GStreamer 插件（例如由 ffmpeg 提供支持的 `gstreamer1.0-libav`）以对更多媒体格式提供支持
+  * Qt Multimedia 在 Linux 下直接使用系统提供的解码器播放媒体文件（在 Debian/Ubuntu 下默认为 GStreamer），因此可能需要安装额外的 GStreamer 插件（例如同样由 FFMpeg 提供支持的 `gstreamer1.0-libav`）以对更多媒体格式提供支持
 
 ## 许可证
 

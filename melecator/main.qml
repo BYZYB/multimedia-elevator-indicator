@@ -20,9 +20,9 @@ Window {
     property int mode_playback: 1
     property int mode_side: 1
     property int notification_speed: 60000
-    readonly property string path_media_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/videos/" : "/../test_data/videos/")
+    readonly property string path_media_default: Qt.platform.os === "windows" ? "../videos/" : path_application_dir + "/../videos/"
     property string path_media: path_media_default
-    readonly property string path_notification_default: path_dir + (Qt.platform.os === "windows" ? "/../../test_data/notifications/" : "/../test_data/notifications/")
+    readonly property string path_notification_default: "../notifications/"
     property string path_notification: path_notification_default
     property string province: "广东省"
     property int time_door_move: 3
