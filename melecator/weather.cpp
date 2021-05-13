@@ -75,6 +75,9 @@ void Weather::weatherForecastRequestCompleted() {
 }
 
 // Request the weather data of a specific city using AMAP weather API (in JSON format)
+// Public AMAP developer account registered with zusms.com (not my own account, for test purpose only): 16535533188
+// Please login with SMS verification code, do not change password (I don't know either) or delete existing APIs.
+// API key (web services without IP whitelist): 9e24a5b9641a7b9bd139940b7212cdfa
 void Weather::request_data(const QString &city) {
     const QNetworkRequest request_current(url_current + city), request_forecast(url_forecast + city);
     current_data = forecast_data = QJsonValue();

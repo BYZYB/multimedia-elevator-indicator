@@ -30,9 +30,9 @@ Window {
     property int time_stop: 5
     readonly property string url_ncov_default: "https://lab.isaaclin.cn/nCoV/api/area?province="
     property string url_ncov: url_ncov_default
-    readonly property string url_weather_current_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&city="
+    readonly property string url_weather_current_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=9e24a5b9641a7b9bd139940b7212cdfa&city="
     property string url_weather_current: url_weather_current_default
-    readonly property string url_weather_forecast_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=5d2d3e6c0d5188bec134fc4fc1b139e0&extensions=all&city="
+    readonly property string url_weather_forecast_default: "https://restapi.amap.com/v3/weather/weatherInfo?key=9e24a5b9641a7b9bd139940b7212cdfa&extensions=all&city="
     property string url_weather_forecast: url_weather_forecast_default
     property int window_flags: 0
 
