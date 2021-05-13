@@ -1,12 +1,14 @@
 import QtMultimedia 5.15
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Material 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
 
 Window {
     id: window_root
 
+    property int accent: Material.Pink
     property string city: "广州市"
     property int client_floor: 1
     property string client_name: "客梯"
@@ -36,6 +38,7 @@ Window {
     property string url_weather_forecast: url_weather_forecast_default
     property int window_flags: 0
 
+    Material.accent: accent
     maximumHeight: Screen.height
     maximumWidth: Screen.width
     minimumHeight: 720
@@ -1766,50 +1769,70 @@ Window {
             anchors.fill: parent
             currentIndex: tabbar_elevator_setting.currentIndex
 
-            Column {
-                spacing: 16
+            ScrollView {
+                id: scrollview_elevator_setting_1
 
-                Text {
-                    font.weight: Font.Medium
-                    text: "界面高度（像素）"
-                }
+                clip: true
+                width: parent.width
 
-                SpinBox {
-                    id: spinbox_elevator_setting_0_0
+                Column {
+                    spacing: 16
 
-                    editable: true
-                    from: window_root.minimumHeight
-                    to: window_root.maximumHeight
-                    value: window_root.height
-                    width: parent.width
-                }
+                    Text {
+                        font.weight: Font.Medium
+                        text: "界面高度（像素）"
+                    }
 
-                Text {
-                    font.weight: Font.Medium
-                    text: "界面宽度（像素）"
-                }
+                    SpinBox {
+                        id: spinbox_elevator_setting_0_0
 
-                SpinBox {
-                    id: spinbox_elevator_setting_0_1
+                        editable: true
+                        from: window_root.minimumHeight
+                        to: window_root.maximumHeight
+                        value: window_root.height
+                        width: scrollview_elevator_setting_1.width
+                    }
 
-                    editable: true
-                    from: window_root.minimumWidth
-                    to: window_root.maximumWidth
-                    value: window_root.width
-                    width: parent.width
-                }
+                    Text {
+                        font.weight: Font.Medium
+                        text: "界面宽度（像素）"
+                    }
 
-                Text {
-                    font.weight: Font.Medium
-                    text: "窗口模式"
-                }
+                    SpinBox {
+                        id: spinbox_elevator_setting_0_1
 
-                ComboBox {
-                    id: combobox_elevator_setting_0_2
+                        editable: true
+                        from: window_root.minimumWidth
+                        to: window_root.maximumWidth
+                        value: window_root.width
+                        width: scrollview_elevator_setting_1.width
+                    }
 
-                    currentIndex: window_flags
-                    model: ["窗口化", "无边框", "全屏幕"]
-                    width: parent.width
+                    Text {
+                        font.weight: Font.Medium
+                        text: "窗口模式"
+                    }
+
+                    ComboBox {
+                        id: combobox_elevator_setting_0_2
+
+                        currentIndex: window_flags
+                        model: ["窗口化", "无边框", "全屏幕"]
+                        width: scrollview_elevator_setting_1.width
+                    }
+
+                    Text {
+                        font.weight: Font.Medium
+                        text: "主题颜色"
+                    }
+
+                    ComboBox {
+                        id: combobox_elevator_setting_0_3
+
+                        currentIndex: accent
+                        model: ["红色", "粉色（默认）", "紫色", "深紫色", "靛青色", "蓝色", "浅蓝色", "青色", "蓝绿色", "绿色", "浅绿色", "酸橙色", "黄色", "琥珀色", "橙色", "深橙色", "棕色", "灰色", "蓝灰色"]
+                        width: scrollview_elevator_setting_1.width
+                    }
                 }
             }
 
@@ -1859,8 +1882,6 @@ Window {
             }
 
             ScrollView {
-                id: scrollview_elevator_setting_2
-
                 clip: true
                 width: parent.width
 
@@ -1877,7 +1898,7 @@ Window {
 
                         placeholderText: "广东省"
                         text: province
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -1890,7 +1911,7 @@ Window {
 
                         placeholderText: "广州市"
                         text: city
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -1905,7 +1926,7 @@ Window {
                         from: 1
                         to: 1440
                         value: interval_weather / 60000
-                        width: parent.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -1920,7 +1941,7 @@ Window {
                         from: 1
                         to: 1440
                         value: interval_notification / 60000
-                        width: parent.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -1935,7 +1956,7 @@ Window {
                         from: 1
                         to: 1440
                         value: interval_ncov / 60000
-                        width: parent.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -1950,7 +1971,7 @@ Window {
                         to: 30000
                         stepSize: 3000
                         value: notification_speed
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -1963,7 +1984,7 @@ Window {
 
                         placeholderText: path_notification_default
                         text: path_notification
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -1976,7 +1997,7 @@ Window {
 
                         placeholderText: url_weather_current_default
                         text: url_weather_current
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -1989,7 +2010,7 @@ Window {
 
                         placeholderText: url_weather_forecast_default
                         text: url_weather_forecast
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -2002,7 +2023,7 @@ Window {
 
                         placeholderText: url_ncov_default
                         text: url_ncov
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
                 }
             }
@@ -2026,7 +2047,7 @@ Window {
                         from: floor_min
                         to: 255
                         value: floor_max
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -2041,7 +2062,7 @@ Window {
                         from: 1
                         to: floor_max
                         value: floor_min
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -2054,7 +2075,7 @@ Window {
 
                         currentIndex: mode_side
                         model: ["隐藏", "左侧", "右侧"]
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -2067,7 +2088,7 @@ Window {
 
                         currentIndex: mode_capacity
                         model: ["标准", "精确"]
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -2082,7 +2103,7 @@ Window {
                         from: 1
                         to: 255
                         value: time_door_move
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -2097,7 +2118,7 @@ Window {
                         from: 1
                         to: 255
                         value: time_next_floor
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
 
                     Text {
@@ -2112,13 +2133,17 @@ Window {
                         from: 1
                         to: 255
                         value: time_stop
-                        width: scrollview_elevator_setting_2.width
+                        width: scrollview_elevator_setting_1.width
                     }
                 }
             }
         }
 
         onAccepted: {
+            if (accent !== combobox_elevator_setting_0_3.currentIndex) {
+                accent = combobox_elevator_setting_0_3.currentIndex
+            }
+
             if (city !== textfield_elevator_setting_2_1.text) {
                 city = textfield_elevator_setting_2_1.length ? textfield_elevator_setting_2_1.text : "广州市"
                 timer_weather.restart()
