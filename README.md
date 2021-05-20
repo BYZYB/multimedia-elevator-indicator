@@ -59,9 +59,9 @@
 ## 编译和运行
 
 * 软件包和依赖
-  * Qt 版本：`5.15+`
-  * 使用的 Qt 模块（完成 `qmake` 所需的最少数量）：`quick quickcontrols2 svg`
-  * Debian/Ubuntu 软件包：`libqt5multimedia5-plugins libqt5svg5 libqt5svg5-dev qml-module-qtmultimedia qml-module-qtquick-controls2 qml-module-qtquick-window2 qt5-qmake qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev`
+  * Qt 版本：`5.15.y`
+  * 使用的 Qt 模块（最少情况）：`quick quickcontrols2 svg`
+  * Debian/Ubuntu 软件包：`libqt5multimedia5-plugins libqt5svg5 libqt5svg5-dev qml-module-qtmultimedia qml-module-qtquick-controls2 qml-module-qtquick-layouts qml-module-qtquick-window2 qt5-qmake qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev`
 * Windows
   * 使用 Qt Creator 打开本项目，根据实际情况配置构建设置后即可编译项目并运行
   * Qt Multimedia 在 Windows 下默认使用 DirectShow 进行视频播放，因此可能需要安装额外的 DirectShow 解码器（例如基于 FFMpeg 的 [LAVFilters](https://github.com/Nevcairiel/LAVFilters)）以对更多媒体格式提供支持
