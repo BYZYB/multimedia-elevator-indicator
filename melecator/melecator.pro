@@ -1,5 +1,4 @@
 CONFIG += \
-    c++latest \
     ltcg \
     optimize_full \
     qtquickcompiler
@@ -27,7 +26,7 @@ SOURCES += \
 RESOURCES += \
     app.qrc
 
-VERSION = 0.7.11
+VERSION = 0.7.12
 
 windows {
     RC_ICONS = res/icons/app_icon.ico
