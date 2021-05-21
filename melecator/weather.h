@@ -39,11 +39,11 @@ public:
     Q_INVOKABLE QUrl get_image_url(const bool &is_forecast, const qint32 &day = 0);
 
 public slots:
-    void request_data(const QString &city);
     static inline void set_url(const QString &url_current, const QString &url_forecast) {
         Weather::url_current = url_current;
         Weather::url_forecast = url_forecast;
     }
+    void request_data(const QString &city);
 
 protected:
     static QJsonValue current_data, forecast_data;

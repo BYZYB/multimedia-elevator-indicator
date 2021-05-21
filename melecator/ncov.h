@@ -18,8 +18,8 @@ public:
     Q_INVOKABLE static inline QJsonValue get_province_data() { return province_data; }
 
 public slots:
-    void request_data(const QString &province);
     static inline void set_url(const QString &url) { Ncov::url = url; }
+    void request_data(const QString &province);
 
 protected:
     static QJsonValue capital_data, province_data;

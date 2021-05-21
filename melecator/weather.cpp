@@ -32,13 +32,13 @@ QUrl Weather::get_image_url(const bool &is_forecast, const qint32 &day) {
         return QUrl("qrc:/res/icons/weather/foggy.svg");
     } else if (phenomenon.isEmpty()) { // The weather phenomenon string is empty
 #ifndef QT_NO_DEBUG
-        qWarning() << "[E] Empty weather phenomenon, the weather data might be broken.";
+        qWarning() << "[E] [Weather] Empty weather phenomenon, the weather data might be broken.";
 #endif
         is_forecast ? emit weatherForecastUnavailable() : emit weatherCurrentUnavailable();
         return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
     } else { // Other weather phenomenon
 #ifndef QT_NO_DEBUG
-        qWarning() << "[W] Unknown weather phenomenon:" << phenomenon;
+        qWarning() << "[W] [Weather] Unknown weather phenomenon:" << phenomenon;
 #endif
         return QUrl("qrc:/res/icons/weather/cloudy-alert.svg");
     }
@@ -48,7 +48,7 @@ QUrl Weather::get_image_url(const bool &is_forecast, const qint32 &day) {
 void Weather::weatherCurrentRequestCompleted() {
     if (reply_current->error()) { // Error happened during network request
 #ifndef QT_NO_DEBUG
-        qWarning() << "[E] Failed to get current weather data, please check your internet connection and try again.";
+        qWarning() << "[E] [Weather] Failed to get current weather data, please check your internet connection and try again.";
 #endif
         emit weatherCurrentUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON documents
@@ -63,7 +63,7 @@ void Weather::weatherCurrentRequestCompleted() {
 void Weather::weatherForecastRequestCompleted() {
     if (reply_forecast->error()) { // Error happened during network request
 #ifndef QT_NO_DEBUG
-        qWarning() << "[E] Failed to get weather forecast data, please check your internet connection and try again.";
+        qWarning() << "[E] [Weather] Failed to get weather forecast data, please check your internet connection and try again.";
 #endif
         emit weatherForecastUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON documents
