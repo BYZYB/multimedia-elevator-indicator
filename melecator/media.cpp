@@ -21,7 +21,7 @@ void Media::read_file(const QString &path) {
             file.close();
         } else { // Cannot open media file in readonly mode
 #ifndef QT_NO_DEBUG
-            qWarning() << "[E] Failed to open media file in readonly mode:" << full_path;
+            qWarning() << "[E] [Media] Failed to open media file in readonly mode:" << full_path;
 #endif
         }
     }

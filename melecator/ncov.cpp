@@ -7,7 +7,7 @@ QString Ncov::url;
 void Ncov::ncovRequestCompleted() {
     if (reply->error()) { // Error happened during network request
 #ifndef QT_NO_DEBUG
-        qWarning() << "[E] Failed to get COVID-19 infection data, please check your internet connection and try again.";
+        qWarning() << "[E] [Ncov] Failed to get COVID-19 infection data, please check your internet connection and try again.";
 #endif
         emit ncovUnavailable();
     } else { // Successfully got reply from remote server, save them to JSON document

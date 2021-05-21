@@ -5,6 +5,7 @@ CONFIG += \
 
 HEADERS += \
     elevator.h \
+    emulator.h \
     media.h \
     ncov.h \
     notification.h \
@@ -16,7 +17,7 @@ QT += \
     svg
 
 SOURCES += \
-    elevator.cpp \
+    emulator.cpp \
     main.cpp \
     media.cpp \
     ncov.cpp \
@@ -26,7 +27,7 @@ SOURCES += \
 RESOURCES += \
     app.qrc
 
-VERSION = 0.7.12
+VERSION = 0.8.2
 
 windows {
     RC_ICONS = res/icons/app_icon.ico

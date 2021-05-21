@@ -11,7 +11,7 @@ QString Notification::get_data(const bool &is_content, const qint32 &index) {
         return is_content ? iterator.key() : iterator.value().trimmed();
     } else { // Notification index is out of range
 #ifndef QT_NO_DEBUG
-        qWarning() << "[E] Notification index out of range: Index" << index << ", Type" << (is_content ? "content" : "title");
+        qWarning() << "[E] [Notification] Notification index out of range: Index" << index << ", Type" << (is_content ? "content" : "title");
 #endif
         return "🔕 通知不存在";
     }
@@ -53,7 +53,7 @@ void Notification::read_file(const QString &path) {
             file.close();
         } else { // Cannot open file in readonly mode
 #ifndef QT_NO_DEBUG
-            qWarning() << "[E] Failed to open notification file in readonly mode:" << full_path;
+            qWarning() << "[E] [Notification] Failed to open notification file in readonly mode:" << full_path;
 #endif
         }
     }
