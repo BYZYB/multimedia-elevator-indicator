@@ -1,4 +1,5 @@
 #include "elevator.h"
+#include "emulator.h"
 #include "media.h"
 #include "ncov.h"
 #include "notification.h"
@@ -19,7 +20,7 @@ int main(int argc, char *argv[]) {
 #ifndef Q_OS_WIN
     engine.rootContext()->setContextProperty("path_application_dir", app.applicationDirPath());
 #endif
-    engine.rootContext()->setContextProperty("Elevator", new Elevator());
+    engine.rootContext()->setContextProperty("Elevator", new Emulator());
     engine.rootContext()->setContextProperty("Media", new Media());
     engine.rootContext()->setContextProperty("Ncov", new Ncov());
     engine.rootContext()->setContextProperty("Notification", new Notification());

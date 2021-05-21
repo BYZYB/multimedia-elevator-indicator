@@ -2291,8 +2291,8 @@ Window {
                 }
             }
 
-            Elevator.start(floor_max, floor_min, time_door_move,
-                           time_next_floor, time_stop)
+            Elevator.elevator_init(floor_max, floor_min, time_door_move,
+                                   time_next_floor, time_stop)
         }
     }
 
